@@ -61,7 +61,7 @@ public class RobotContainer {
           m_drivetrain));
 
     // when operator holds A button, run PrepareLaunch for 1 sec, then run LaunchNote
-    m_operatorController.a().whileTrue(new PrepareLaunch(m_launcher)
+    m_operatorController.a().whileTrue(new PrepearLaunch(m_launcher)
       .withTimeout(LauncherConstants.kLauncherDelay)
       .andThen(new LaunchNote(m_launcher))
       .handleInterrupt(() -> m_launcher.stop()));
