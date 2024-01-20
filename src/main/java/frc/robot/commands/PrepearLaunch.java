@@ -4,7 +4,7 @@
 
 package frc.robot.commands;
 
-import static frc.robot.Constants.LauncherConstants.*;
+import static frc.robot.Constants.LauncherConstants;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Launcher;
@@ -22,7 +22,7 @@ public class PrepearLaunch extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    launcher.setLaunchWheel(LauncherConstants.LAUNCHER_SPEED);
+    launcher.setLaunchWheel(LauncherConstants.launcherSpeed);
   }
 
   // Called every time the scheduler runs while the command is scheduled.

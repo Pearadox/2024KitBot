@@ -4,10 +4,9 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.LauncherConstants.*;
+import static frc.robot.Constants.LauncherConstants;
 
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.CANSparkLowLevel.MotorType;
 import frc.lib.drivers.PearadoxSparkMax;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -18,18 +17,18 @@ public class Launcher extends SubsystemBase {
 
   /** Creates a new Launcher. */
   public Launcher() {
-    m_launchWheel = new PearadoxSparkMax(LauncherConstants.LAUNCHER_ID, 
-      MotorType.kBrushed, IdleMode.kCoast, LauncherConstants.LAUNCHER_CURRENT_LIMIT, false);
-    m_feedWheel = new PearadoxSparkMax(LauncherConstants.FEEDER_ID, 
-      MotorType.kBrushed, IdleMode.kCoast, LauncherConstants.FEEDER_CURRENT_LIMIT, false);
+    m_launchWheel = new PearadoxSparkMax(LauncherConstants.launcherID, 
+      MotorType.kBrushed, PearadoxSparkMax.IdleMode.kCoast, LauncherConstants.launcherCurrentLimit, false);
+    m_feedWheel = new PearadoxSparkMax(LauncherConstants.feederID, 
+      MotorType.kBrushed, PearadoxSparkMax.IdleMode.kCoast, LauncherConstants.feederCurrentLimit, false);
   }
 
   public Command getIntakeCommand() {
     return this.startEnd(
       // sets wheels to intake speed values upon init
       () -> {
-        setLaunchWheel(LauncherConstants.LAUNCH_FEEDER_SPEED);
-        setFeedWheel(LauncherConstants.INTAKE_FEEDER_SPEED);
+        setLaunchWheel(LauncherConstants.launchFeederSpeed);
+        setFeedWheel(LauncherConstants.intakeFeederSpeed);
       },
       // stop wheels when command stops
       () -> { stop(); });

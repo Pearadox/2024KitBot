@@ -6,14 +6,14 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.subsystems.DriveTrain;
-import frc.robot.Constants.DriveTrainConstants;;
+import frc.robot.subsystems.Drivetrain;
+import frc.robot.Constants.DrivetrainConstants;
 
 public class Drive extends Command {
   /** Creates a new Drive. */
-  private DriveTrain drivetrain;
+  private Drivetrain drivetrain;
   private CommandXboxController drivercontroller;
-  public Drive(DriveTrain drivetrain, CommandXboxController drivercontroller) {
+  public Drive(Drivetrain drivetrain, CommandXboxController drivercontroller) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drivetrain = drivetrain; 
     this.drivercontroller = drivercontroller;
@@ -30,11 +30,11 @@ public class Drive extends Command {
     double speed = -drivercontroller.getLeftY();
     double turn = -drivercontroller.getRightX(); 
 
-    if (Math.abs(speed) < DriveTrainConstants.deadBan) {
+    if (Math.abs(speed) < DrivetrainConstants.deadBan) {
       speed = 0;
     }
 
-    if (Math.abs(turn) < DriveTrainConstants.deadBan) {
+    if (Math.abs(turn) < DrivetrainConstants.deadBan) {
       turn = 0;
     }
 
