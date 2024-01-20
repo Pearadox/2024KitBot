@@ -9,11 +9,27 @@ import static frc.robot.Constants.DrivetrainConstants.*;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.drivers.PearadoxSparkMax;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.drive.RobotDriveBase.MotorType;
 
 public class Drivetrain extends SubsystemBase {
   /** Creates a new Drivetrain. */
-  public Drivetrain() {}
+  DifferentialDrive m_drivetrain;
+
+  public Drivetrain() {
+    PearadoxSparkMax leftFront = new PearadoxSparkMax(DrivetrainConstants.LEFT_FRONT_ID, 
+      MotorType.kBrushed, IdleMode.kCoast, 45, false)
+    PearadoxSparkMax rightFront = new PearadoxSparkMax(DrivetrainConstants.RIGHT_FRONT_ID, 
+      MotorType.kBrushed, IdleMode.kCoast, 45, false)
+    PearadoxSparkMax leftBack = new PearadoxSparkMax(DrivetrainConstants.LEFT_BACK_ID, 
+      MotorType.kBrushed, IdleMode.kCoast, 45, false)
+    PearadoxSparkMax rightBack = new PearadoxSparkMax(DrivetrainConstants.RIGHT_FRONT_ID, 
+      MotorType.kBrushed, IdleMode.kCoast, 45, false)
+
+    leftBack.follow(leftFront);
+    rightBack.follow(rightFront)
+  }
 
   @Override
   public void periodic() {
