@@ -13,22 +13,22 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 // import edu.wpi.first.wpilibj.drive.RobotDriveBase.MotorType;
 
 public class Drivetrain extends SubsystemBase {
+  private final PearadoxSparkMax leftFront = new PearadoxSparkMax(DrivetrainConstants.leftFrontID, 
+    MotorType.kBrushless, PearadoxSparkMax.IdleMode.kCoast, DrivetrainConstants.limit, true);
+      
+  private final PearadoxSparkMax rightFront = new PearadoxSparkMax(DrivetrainConstants.rightFrontID, 
+    MotorType.kBrushless, PearadoxSparkMax.IdleMode.kCoast, DrivetrainConstants.limit, false);
+  
+  private final PearadoxSparkMax leftBack = new PearadoxSparkMax(DrivetrainConstants.leftBackID, 
+    MotorType.kBrushless, PearadoxSparkMax.IdleMode.kCoast, DrivetrainConstants.limit, true);
+  
+  private final PearadoxSparkMax rightBack = new PearadoxSparkMax(DrivetrainConstants.rightBackID, 
+    MotorType.kBrushless, PearadoxSparkMax.IdleMode.kCoast, DrivetrainConstants.limit, false);
+  
   /** Creates a new Drivetrain. */
   DifferentialDrive m_drivetrain;
 
-  public Drivetrain() {
-    PearadoxSparkMax leftFront = new PearadoxSparkMax(DrivetrainConstants.leftFrontID, 
-      MotorType.kBrushless, PearadoxSparkMax.IdleMode.kCoast, DrivetrainConstants.limit, true);
-
-    PearadoxSparkMax rightFront = new PearadoxSparkMax(DrivetrainConstants.rightFrontID, 
-      MotorType.kBrushless, PearadoxSparkMax.IdleMode.kCoast, DrivetrainConstants.limit, false);
-
-    PearadoxSparkMax leftBack = new PearadoxSparkMax(DrivetrainConstants.leftBackID, 
-      MotorType.kBrushless, PearadoxSparkMax.IdleMode.kCoast, DrivetrainConstants.limit, true);
-
-    PearadoxSparkMax rightBack = new PearadoxSparkMax(DrivetrainConstants.rightBackID, 
-      MotorType.kBrushless, PearadoxSparkMax.IdleMode.kCoast, DrivetrainConstants.limit, false);
-    
+  public Drivetrain() {    
     leftBack.follow(leftFront);
     rightBack.follow(rightFront);
 
