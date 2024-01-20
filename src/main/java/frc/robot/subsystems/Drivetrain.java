@@ -6,8 +6,8 @@ package frc.robot.subsystems;
 
 import static frc.robot.Constants.DrivetrainConstants.*;
 
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.CANSpark;
+import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.drivers.PearadoxSparkMax;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -19,16 +19,22 @@ public class Drivetrain extends SubsystemBase {
 
   public Drivetrain() {
     PearadoxSparkMax leftFront = new PearadoxSparkMax(DrivetrainConstants.LEFT_FRONT_ID, 
-      MotorType.kBrushed, IdleMode.kCoast, 45, false)
+      MotorType.kBrushless, IdleMode.kCoast, 45, true);
     PearadoxSparkMax rightFront = new PearadoxSparkMax(DrivetrainConstants.RIGHT_FRONT_ID, 
-      MotorType.kBrushed, IdleMode.kCoast, 45, false)
+      MotorType.kBrushless, IdleMode.kCoast, 45, false);
     PearadoxSparkMax leftBack = new PearadoxSparkMax(DrivetrainConstants.LEFT_BACK_ID, 
-      MotorType.kBrushed, IdleMode.kCoast, 45, false)
+      MotorType.kBrushless, IdleMode.kCoast, 45, true);
     PearadoxSparkMax rightBack = new PearadoxSparkMax(DrivetrainConstants.RIGHT_FRONT_ID, 
-      MotorType.kBrushed, IdleMode.kCoast, 45, false)
-
+      MotorType.kBrushless, IdleMode.kCoast, 45, false);
+    
     leftBack.follow(leftFront);
-    rightBack.follow(rightFront)
+    rightBack.follow(rightFront);
+
+    m_drivetrain = new DifferentialDrive(leftFront, rightFront);
+  }
+
+  public void arcadeDrive(double throttle, double twist) {
+    m_drivetrain.arcadeDrive(throttle, twist);
   }
 
   @Override
