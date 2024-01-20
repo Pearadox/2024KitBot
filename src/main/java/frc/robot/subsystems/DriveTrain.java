@@ -22,10 +22,14 @@ public class DriveTrain extends SubsystemBase {
   /** Creates a new DriveTrain. */
   public DriveTrain() {
 
-    PearadoxSparkMax leftFront = new PearadoxSparkMax(DriveTrainConstants.leftFrontID, MotorType.kBrushless, IdleMode.kCoast,45, true);
-    PearadoxSparkMax leftBack = new PearadoxSparkMax(DriveTrainConstants.leftBackID, MotorType.kBrushless, IdleMode.kCoast,45, true);
-    PearadoxSparkMax rightFront = new PearadoxSparkMax(DriveTrainConstants.rightFrontID, MotorType.kBrushless, IdleMode.kCoast,45, false);
-    PearadoxSparkMax rightBack = new PearadoxSparkMax(DriveTrainConstants.rightBackID, MotorType.kBrushless, IdleMode.kCoast,45, false);
+    PearadoxSparkMax leftFront = new PearadoxSparkMax(
+      DriveTrainConstants.leftFrontID, MotorType.kBrushless, IdleMode.kCoast, DriveTrainConstants.limit, true);
+    PearadoxSparkMax leftBack = new PearadoxSparkMax(
+      DriveTrainConstants.leftBackID, MotorType.kBrushless, IdleMode.kCoast, DriveTrainConstants.limit, true);
+    PearadoxSparkMax rightFront = new PearadoxSparkMax(
+      DriveTrainConstants.rightFrontID, MotorType.kBrushless, IdleMode.kCoast, DriveTrainConstants.limit, false);
+    PearadoxSparkMax rightBack = new PearadoxSparkMax(
+      DriveTrainConstants.rightBackID, MotorType.kBrushless, IdleMode.kCoast, DriveTrainConstants.limit, false);
 
     leftBack.follow(leftFront);
     rightBack.follow(rightFront);

@@ -26,5 +26,7 @@ public final class Constants {
     public static final int rightBackID = 4;
     
     public static final double deadBan = 0.1;
+
+    public static final int limit = 45;
   }
 }
