@@ -9,8 +9,11 @@ import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.subsystems.CANDrivetrain;
+import frc.robot.subsystems.CANLauncher;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -21,11 +24,15 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
+  private final CANDrivetrain m_drivetrain = new CANDrivetrain();
+  private final CANLauncher m_launcher = new CANLauncher();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
-
+  private final CommandXboxController m_operatorController =
+      new CommandXboxController(OperatorConstants.kOperatorControllerPort);
+  
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
@@ -42,13 +49,25 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    new Trigger(m_exampleSubsystem::exampleCondition)
-        .onTrue(new ExampleCommand(m_exampleSubsystem));
 
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
     m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
+
+    // default command is to use arcade drive
+    m.drivetrain.setDefaultCommand(new RunCommand(
+      () -> m_drivetrain.arcadeDrive(
+        -m_driverController.getLeftY, -m_driverController.getRightX()), 
+          m_drivetrain));
+
+    // when operator holds A button, run PrepareLaunch for 1 sec, then run LaunchNote
+    m_operatorController.a().whileTrue(new PrepareLaunch(m_launcher)
+      .withTimeout(LauncherConstants.kLauncherDelay)
+      .andThen(new LaunchNote(m_launcher))
+      .handleInterrupt(() -> m_launcher.stop()));
+
+    // intakes when operator holds left bumper
+    m_operatorController.leftBumper().whileTrue(m_launcher.getIntakeCommand());
   }
 
   /**
@@ -58,6 +77,6 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return Autos.exampleAuto(m_exampleSubsystem);
+    return Autos.exampleAuto(m_drivetrain);
   }
 }
