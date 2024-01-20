@@ -19,9 +19,26 @@ public final class Constants {
   }
 
   public static class DrivetrainConstants {
-    public static int LEFT_FRONT_ID = 1;
-    public static int RIGHT_FRONT_ID = 2;
-    public static int LEFT_BACK_ID = 3;
-    public static int RIGHT_BACK_ID = 4;
+    public static final int LEFT_FRONT_ID = 1;
+    public static final int RIGHT_FRONT_ID = 2;
+    public static final int LEFT_BACK_ID = 3;
+    public static final int RIGHT_BACK_ID = 4;
+
+    public static final int DRIVE_CURRENT_LIMIT = 45; // change?
+  }
+
+  public static class LauncherConstants {
+    public static final int FEEDER_ID = 5;
+    public static final int LAUNCHER_ID = 6;
+
+    public static final int LAUNCHER_CURRENT_LIMIT = 80; // change?
+    public static final int FEEDER_CURRENT_LIMIT = 80; // change?
+
+    public static final double LAUNCHER_SPEED = 1;
+    public static final double LAUNCH_FEEDER_SPEED = 1;
+    public static final double INTAKE_LAUNCHER_SPEED = -1;
+    public static final double INTAKE_FEEDER_SPEED = -0.2;
+
+    public static final double LAUNCHER_DELAY = 1;
   }
 }

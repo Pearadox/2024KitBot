@@ -6,12 +6,12 @@ package frc.robot.subsystems;
 
 import static frc.robot.Constants.DrivetrainConstants.*;
 
-import com.revrobotics.CANSpark;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import frc.lib.drivers.PearadoxSparkMax;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.drive.RobotDriveBase.MotorType;
+// import edu.wpi.first.wpilibj.drive.RobotDriveBase.MotorType;
 
 public class Drivetrain extends SubsystemBase {
   /** Creates a new Drivetrain. */
@@ -19,13 +19,13 @@ public class Drivetrain extends SubsystemBase {
 
   public Drivetrain() {
     PearadoxSparkMax leftFront = new PearadoxSparkMax(DrivetrainConstants.LEFT_FRONT_ID, 
-      MotorType.kBrushless, IdleMode.kCoast, 45, true);
+      MotorType.kBrushless, IdleMode.kCoast, DrivetrainConstants.DRIVE_CURRENT_LIMIT, true);
     PearadoxSparkMax rightFront = new PearadoxSparkMax(DrivetrainConstants.RIGHT_FRONT_ID, 
-      MotorType.kBrushless, IdleMode.kCoast, 45, false);
+      MotorType.kBrushless, IdleMode.kCoast, DrivetrainConstants.DRIVE_CURRENT_LIMIT, false);
     PearadoxSparkMax leftBack = new PearadoxSparkMax(DrivetrainConstants.LEFT_BACK_ID, 
-      MotorType.kBrushless, IdleMode.kCoast, 45, true);
+      MotorType.kBrushless, IdleMode.kCoast, DrivetrainConstants.DRIVE_CURRENT_LIMIT, true);
     PearadoxSparkMax rightBack = new PearadoxSparkMax(DrivetrainConstants.RIGHT_FRONT_ID, 
-      MotorType.kBrushless, IdleMode.kCoast, 45, false);
+      MotorType.kBrushless, IdleMode.kCoast, DrivetrainConstants.DRIVE_CURRENT_LIMIT, false);
     
     leftBack.follow(leftFront);
     rightBack.follow(rightFront);
