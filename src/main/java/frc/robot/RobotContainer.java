@@ -4,11 +4,10 @@
 
 package frc.robot;
 
-import frc.robot.subsystems.DriveTrain;
-import frc.robot.Constants.OperatorConstants;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.*;
 import frc.robot.commands.*;
+import frc.robot.subsystems.*;
+import edu.wpi.first.wpilibj2.command.*;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -24,7 +23,9 @@ public class RobotContainer {
 
   private final CommandXboxController driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
-
+  private final CommandXboxController m_operatorController =
+      new CommandXboxController(OperatorConstants.kOperatorControllerPort);
+  
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
@@ -44,8 +45,16 @@ public class RobotContainer {
    * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
-
   private void configureBindings() {
+
+    // when operator holds A button, run PrepareLaunch for 1 sec, then run LaunchNote
+    m_operatorController.a().whileTrue(new PrepearLaunch(m_launcher)
+      .withTimeout(LauncherConstants.kLauncherDelay)
+      .andThen(new LaunchNote(m_launcher))
+      .handleInterrupt(() -> m_launcher.stop()));
+
+    // intakes when operator holds left bumper
+    m_operatorController.leftBumper().whileTrue(m_launcher.getIntakeCommand());
   }
 
   /**
@@ -53,5 +62,7 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
+  public Command getAutonomousCommand() {
+    // An example command will be run in autonomous
   }
 

@@ -55,6 +55,7 @@
         {
             "groupId": "com.revrobotics.frc",
             "artifactId": "REVLib-driver",
+
             "version": "2024.2.0",
             "libName": "REVLibDriver",
             "headerClassifier": "headers",
