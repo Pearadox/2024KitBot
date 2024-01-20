@@ -4,7 +4,7 @@
 
 package frc.robot.commands;
 
-import static frc.robot.Constants.LauncherConstants.*;
+import static frc.robot.Constants.LauncherConstants;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Launcher;
@@ -12,7 +12,7 @@ import frc.robot.subsystems.Launcher;
 public class LaunchNote extends Command {
   private Launcher launcher;
   /** Creates a new LaunchNote. */
-  public LaunchNote() {
+  public LaunchNote(Launcher launcher) {
     this.launcher = launcher;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(launcher);
@@ -21,8 +21,8 @@ public class LaunchNote extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    launcher.setLaunchWheel(LauncherConstants.LAUNCHER_SPEED);
-    launcher.setFeedWheel(LauncherConstants.LAUNCH_FEEDER_SPEED);
+    launcher.setLaunchWheel(LauncherConstants.launcherSpeed);
+    launcher.setFeedWheel(LauncherConstants.launchFeederSpeed);
   }
 
   // Called every time the scheduler runs while the command is scheduled.

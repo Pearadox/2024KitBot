@@ -4,10 +4,9 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.DrivetrainConstants.*;
+import static frc.robot.Constants.*;
 
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.CANSparkLowLevel.MotorType;
 import frc.lib.drivers.PearadoxSparkMax;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -18,14 +17,17 @@ public class Drivetrain extends SubsystemBase {
   DifferentialDrive m_drivetrain;
 
   public Drivetrain() {
-    PearadoxSparkMax leftFront = new PearadoxSparkMax(DrivetrainConstants.LEFT_FRONT_ID, 
-      MotorType.kBrushless, IdleMode.kCoast, DrivetrainConstants.DRIVE_CURRENT_LIMIT, true);
-    PearadoxSparkMax rightFront = new PearadoxSparkMax(DrivetrainConstants.RIGHT_FRONT_ID, 
-      MotorType.kBrushless, IdleMode.kCoast, DrivetrainConstants.DRIVE_CURRENT_LIMIT, false);
-    PearadoxSparkMax leftBack = new PearadoxSparkMax(DrivetrainConstants.LEFT_BACK_ID, 
-      MotorType.kBrushless, IdleMode.kCoast, DrivetrainConstants.DRIVE_CURRENT_LIMIT, true);
-    PearadoxSparkMax rightBack = new PearadoxSparkMax(DrivetrainConstants.RIGHT_FRONT_ID, 
-      MotorType.kBrushless, IdleMode.kCoast, DrivetrainConstants.DRIVE_CURRENT_LIMIT, false);
+    PearadoxSparkMax leftFront = new PearadoxSparkMax(DrivetrainConstants.leftFrontID, 
+      MotorType.kBrushless, PearadoxSparkMax.IdleMode.kCoast, DrivetrainConstants.limit, true);
+
+    PearadoxSparkMax rightFront = new PearadoxSparkMax(DrivetrainConstants.rightFrontID, 
+      MotorType.kBrushless, PearadoxSparkMax.IdleMode.kCoast, DrivetrainConstants.limit, false);
+
+    PearadoxSparkMax leftBack = new PearadoxSparkMax(DrivetrainConstants.leftBackID, 
+      MotorType.kBrushless, PearadoxSparkMax.IdleMode.kCoast, DrivetrainConstants.limit, true);
+
+    PearadoxSparkMax rightBack = new PearadoxSparkMax(DrivetrainConstants.rightBackID, 
+      MotorType.kBrushless, PearadoxSparkMax.IdleMode.kCoast, DrivetrainConstants.limit, false);
     
     leftBack.follow(leftFront);
     rightBack.follow(rightFront);

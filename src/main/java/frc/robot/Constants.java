@@ -17,26 +17,8 @@ public final class Constants {
     public static final int kDriverControllerPort = 0;
     public static final int kOperatorControllerPort = 1;
   }
-
-
-
-  public static class LauncherConstants {
-    public static final int FEEDER_ID = 5;
-    public static final int LAUNCHER_ID = 6;
-
-    public static final int LAUNCHER_CURRENT_LIMIT = 80; // change?
-    public static final int FEEDER_CURRENT_LIMIT = 80; // change?
-
-    public static final double LAUNCHER_SPEED = 1;
-    public static final double LAUNCH_FEEDER_SPEED = 1;
-    public static final double INTAKE_LAUNCHER_SPEED = -1;
-    public static final double INTAKE_FEEDER_SPEED = -0.2;
-
-    public static final double LAUNCHER_DELAY = 1; 
-  }
-    
-    
-  public static class DriveTrainConstants {
+  
+  public static class DrivetrainConstants {
     
     public static final int leftFrontID = 1;
     public static final int rightFrontID = 2;
@@ -47,4 +29,19 @@ public final class Constants {
 
     public static final int limit = 45;
   }
+  public static class LauncherConstants {
+    public static final int feederID = 5;
+    public static final int launcherID = 6;
+
+    public static final int launcherCurrentLimit = 80; // change?
+    public static final int feederCurrentLimit = 80; // change?
+
+    public static final double launcherSpeed = 1;
+    public static final double launchFeederSpeed = 1;
+    public static final double intakeLauncherSpeed = -1;
+    public static final double intakeFeederSpeed = -0.2;
+
+    public static final double launcherDelay = 1; 
+  }
+  
 }

@@ -4,10 +4,13 @@
 
 package frc.robot;
 
-import frc.robot.Constants.*;
+import frc.robot.Constants.LauncherConstants;
+import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj2.command.*;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -19,11 +22,12 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   // Replace with CommandPS4Controller or CommandJoystick if needed
 
-  private final DriveTrain drivetrain = new DriveTrain();
+  private final Drivetrain drivetrain = new Drivetrain();
+  private final Launcher launcher = new Launcher();
 
   private final CommandXboxController driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
-  private final CommandXboxController m_operatorController =
+  private final CommandXboxController operatorController =
       new CommandXboxController(OperatorConstants.kOperatorControllerPort);
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -48,13 +52,13 @@ public class RobotContainer {
   private void configureBindings() {
 
     // when operator holds A button, run PrepareLaunch for 1 sec, then run LaunchNote
-    m_operatorController.a().whileTrue(new PrepearLaunch(m_launcher)
-      .withTimeout(LauncherConstants.kLauncherDelay)
-      .andThen(new LaunchNote(m_launcher))
-      .handleInterrupt(() -> m_launcher.stop()));
+    operatorController.a().whileTrue(new PrepearLaunch(launcher)
+      .withTimeout(LauncherConstants.launcherDelay)
+      .andThen(new LaunchNote(launcher))
+      .handleInterrupt(() -> launcher.stop()));
 
     // intakes when operator holds left bumper
-    m_operatorController.leftBumper().whileTrue(m_launcher.getIntakeCommand());
+    operatorController.leftBumper().whileTrue(launcher.getIntakeCommand());
   }
 
   /**
@@ -64,5 +68,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
+    return null;
   }
 
+}
