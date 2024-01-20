@@ -6,7 +6,6 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.RobotContainer;
 import frc.robot.subsystems.DriveTrain;
 
 public class Drive extends Command {
@@ -27,8 +26,18 @@ public class Drive extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    
-    drivetrain.arcadeDrive(-drivercontroller.getLeftY(), -drivercontroller.getRightX());
+    double speed = -drivercontroller.getLeftY();
+    double turn = -drivercontroller.getRightX(); 
+
+    if (Math.abs(speed) < 0.1) {
+      speed = 0;
+    }
+
+    if (Math.abs(turn) < 0.1) {
+      turn = 0;
+    }
+
+    drivetrain.arcadeDrive(speed, turn);
   }
 
   // Called once the command ends or is interrupted.

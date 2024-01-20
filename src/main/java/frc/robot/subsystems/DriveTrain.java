@@ -18,7 +18,7 @@ import frc.lib.drivers.PearadoxSparkMax;
 
 public class DriveTrain extends SubsystemBase {
 
-  DifferentialDrive DriveTrain;
+  DifferentialDrive drivetrain;
   /** Creates a new DriveTrain. */
   public DriveTrain() {
 
@@ -31,11 +31,11 @@ public class DriveTrain extends SubsystemBase {
     rightBack.follow(rightFront);
 
 
-    DriveTrain = new DifferentialDrive(leftFront, rightFront);
+    drivetrain = new DifferentialDrive(leftFront, rightFront);
   }
 
   public void arcadeDrive(double speed, double rotation) {
-    DriveTrain.arcadeDrive(speed,rotation);
+    drivetrain.arcadeDrive(speed,rotation);
   }
   
   
