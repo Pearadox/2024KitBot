@@ -18,14 +18,7 @@ public final class Constants {
     public static final int kOperatorControllerPort = 1;
   }
 
-  public static class DrivetrainConstants {
-    public static final int LEFT_FRONT_ID = 1;
-    public static final int RIGHT_FRONT_ID = 2;
-    public static final int LEFT_BACK_ID = 3;
-    public static final int RIGHT_BACK_ID = 4;
 
-    public static final int DRIVE_CURRENT_LIMIT = 45; // change?
-  }
 
   public static class LauncherConstants {
     public static final int FEEDER_ID = 5;
@@ -39,6 +32,19 @@ public final class Constants {
     public static final double INTAKE_LAUNCHER_SPEED = -1;
     public static final double INTAKE_FEEDER_SPEED = -0.2;
 
-    public static final double LAUNCHER_DELAY = 1;
+    public static final double LAUNCHER_DELAY = 1; 
+  }
+    
+    
+  public static class DriveTrainConstants {
+    
+    public static final int leftFrontID = 1;
+    public static final int rightFrontID = 2;
+    public static final int leftBackID = 3;
+    public static final int rightBackID = 4;
+    
+    public static final double deadBan = 0.1;
+
+    public static final int limit = 45;
   }
 }

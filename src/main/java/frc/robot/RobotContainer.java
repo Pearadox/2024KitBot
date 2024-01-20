@@ -17,12 +17,11 @@ import edu.wpi.first.wpilibj2.command.*;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
-  private final CANDrivetrain m_drivetrain = new CANDrivetrain();
-  private final CANLauncher m_launcher = new CANLauncher();
-
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandXboxController m_driverController =
+
+  private final DriveTrain drivetrain = new DriveTrain();
+
+  private final CommandXboxController driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
   private final CommandXboxController m_operatorController =
       new CommandXboxController(OperatorConstants.kOperatorControllerPort);
@@ -31,6 +30,10 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the trigger bindings
     configureBindings();
+
+    drivetrain.setDefaultCommand(
+      new Drive(drivetrain, driverController)
+    );
   }
 
   /**
@@ -43,16 +46,6 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-
-    // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
-    // cancelling on release.
-    m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
-
-    // default command is to use arcade drive
-    m.drivetrain.setDefaultCommand(new RunCommand(
-      () -> m_drivetrain.arcadeDrive(
-        -m_driverController.getLeftY, -m_driverController.getRightX()), 
-          m_drivetrain));
 
     // when operator holds A button, run PrepareLaunch for 1 sec, then run LaunchNote
     m_operatorController.a().whileTrue(new PrepearLaunch(m_launcher)
@@ -71,6 +64,5 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return Autos.exampleAuto(m_drivetrain);
   }
-}
+
