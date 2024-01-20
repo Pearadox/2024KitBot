@@ -7,6 +7,7 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.DriveTrain;
+import frc.robot.Constants.DriveTrainConstants;;
 
 public class Drive extends Command {
   /** Creates a new Drive. */
@@ -29,11 +30,11 @@ public class Drive extends Command {
     double speed = -drivercontroller.getLeftY();
     double turn = -drivercontroller.getRightX(); 
 
-    if (Math.abs(speed) < 0.1) {
+    if (Math.abs(speed) < DriveTrainConstants.deadBan) {
       speed = 0;
     }
 
-    if (Math.abs(turn) < 0.1) {
+    if (Math.abs(turn) < DriveTrainConstants.deadBan) {
       turn = 0;
     }
 
