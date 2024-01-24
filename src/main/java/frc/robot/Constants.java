@@ -19,7 +19,6 @@ public final class Constants {
   }
   
   public static class DrivetrainConstants {
-    
     public static final int leftFrontID = 10; //4 on 2023 everybot before change
     public static final int rightFrontID = 13; //3
     public static final int leftBackID = 11; //2
@@ -29,6 +28,7 @@ public final class Constants {
 
     public static final int limit = 45;
   }
+
   public static class LauncherConstants {
     public static final int feederID = 5;
     public static final int launcherID = 6;
@@ -41,7 +41,6 @@ public final class Constants {
     public static final double intakeLauncherSpeed = -1;
     public static final double intakeFeederSpeed = -0.2;
 
-    public static final double launcherDelay = 1; 
-  }
-  
+    public static final double launcherDelay = 1;
+  }  
 }

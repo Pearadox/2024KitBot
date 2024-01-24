@@ -6,45 +6,28 @@ package frc.robot.subsystems;
 
 import static frc.robot.Constants.LauncherConstants;
 
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import frc.lib.drivers.PearadoxSparkMax;
-import edu.wpi.first.wpilibj2.command.Command;
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Launcher extends SubsystemBase {
-  PearadoxSparkMax m_launchWheel;
-  PearadoxSparkMax m_feedWheel;
-
+  private final VictorSPX launchWheel = new VictorSPX(LauncherConstants.launcherID);
+  private final VictorSPX feedWheel = new VictorSPX(LauncherConstants.feederID);
+  
   /** Creates a new Launcher. */
-  public Launcher() {
-    m_launchWheel = new PearadoxSparkMax(LauncherConstants.launcherID, 
-      MotorType.kBrushed, PearadoxSparkMax.IdleMode.kCoast, LauncherConstants.launcherCurrentLimit, false);
-    m_feedWheel = new PearadoxSparkMax(LauncherConstants.feederID, 
-      MotorType.kBrushed, PearadoxSparkMax.IdleMode.kCoast, LauncherConstants.feederCurrentLimit, false);
-  }
-
-  public Command getIntakeCommand() {
-    return this.startEnd(
-      // sets wheels to intake speed values upon init
-      () -> {
-        setLaunchWheel(LauncherConstants.launchFeederSpeed);
-        setFeedWheel(LauncherConstants.intakeFeederSpeed);
-      },
-      // stop wheels when command stops
-      () -> { stop(); });
-  }
+  public Launcher() {}
 
   public void setLaunchWheel(double speed) {
-    m_launchWheel.set(speed);
+    launchWheel.set(ControlMode.PercentOutput, speed);
   }
 
   public void setFeedWheel(double speed) {
-    m_feedWheel.set(speed);
+    feedWheel.set(ControlMode.PercentOutput, speed);
   }
 
   public void stop() {
-    m_launchWheel.set(0);
-    m_feedWheel.set(0);
+    launchWheel.set(ControlMode.PercentOutput, 0);
+    feedWheel.set(ControlMode.PercentOutput, 0);
   }
 
   @Override
