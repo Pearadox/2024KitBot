@@ -20,10 +20,10 @@ public final class Constants {
   
   public static class DrivetrainConstants {
     
-    public static final int leftFrontID = 10;
-    public static final int rightFrontID = 13;
-    public static final int leftBackID = 11;
-    public static final int rightBackID = 12;
+    public static final int leftFrontID = 10; //4 on 2023 everybot before change
+    public static final int rightFrontID = 13; //3
+    public static final int leftBackID = 11; //2
+    public static final int rightBackID = 12; //1
     
     public static final double deadBan = 0.1;
 
