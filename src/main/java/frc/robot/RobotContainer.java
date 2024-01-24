@@ -52,13 +52,13 @@ public class RobotContainer {
   private void configureBindings() {
 
     // when operator holds A button, run PrepareLaunch for 1 sec, then run LaunchNote
-    // operatorController.a().whileTrue(new PrepearLaunch(launcher)
-    //   .withTimeout(LauncherConstants.launcherDelay)
-    //   .andThen(new LaunchNote(launcher))
-    //   .handleInterrupt(() -> launcher.stop()));
+    operatorController.a().whileTrue(new PrepearLaunch(launcher)
+      .withTimeout(LauncherConstants.launcherDelay)
+      .andThen(new LaunchNote(launcher))
+      .handleInterrupt(() -> launcher.stop()));
 
-    // // intakes when operator holds left bumper
-    // operatorController.leftBumper().whileTrue(launcher.getIntakeCommand());
+    // intakes when operator holds left bumper
+    operatorController.leftBumper().whileTrue(launcher.getIntakeCommand());
   }
 
   /**
