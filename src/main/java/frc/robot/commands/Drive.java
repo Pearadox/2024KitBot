@@ -27,8 +27,8 @@ public class Drive extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double speed = -drivercontroller.getLeftY();
-    double turn = -drivercontroller.getRightX(); 
+    double speed = drivercontroller.getLeftY();
+    double turn = drivercontroller.getRightX(); 
 
     if (Math.abs(speed) < DrivetrainConstants.deadBan) {
       speed = 0;
