@@ -41,7 +41,16 @@ public final class Constants {
     public static final double intakeLauncherSpeed = -1;
     public static final double intakeFeederSpeed = -0.2;
 
-    public static final double launcherDelay = .5414*2; // 🤯
+    public static final double launcherDelay = .5414*2; // 🤯💀💀💀💀💀💀
   }
   
+  public static class ClimberConstants {
+    public static final int climberID = 9;
+    public static final int climberLimit = 45; // change?
+  }
+
+  public static class rollerClawConstants {
+    public static final int rollerClawID = 7;
+    public static final int rollerClawLimit = 45; // change?
+  }
 }

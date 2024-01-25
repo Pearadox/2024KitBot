@@ -9,7 +9,6 @@ import static frc.robot.Constants.LauncherConstants;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Launcher extends SubsystemBase {
@@ -31,7 +30,7 @@ public class Launcher extends SubsystemBase {
 
     m_launchWheel.setInverted(false);
     m_feedWheel.setInverted(false);
-    
+
     m_launchWheel.setNeutralMode(NeutralMode.Coast);
     m_feedWheel.setNeutralMode(NeutralMode.Coast);
 
