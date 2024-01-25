@@ -19,7 +19,6 @@ public final class Constants {
   }
   
   public static class DrivetrainConstants {
-    
     public static final int leftFrontID = 10;
     public static final int rightFrontID = 13;
     public static final int leftBackID = 11; 
@@ -29,6 +28,7 @@ public final class Constants {
 
     public static final int limit = 45;
   }
+  
   public static class LauncherConstants {
     public static final int feederID = 5;
     public static final int launcherID = 6;
