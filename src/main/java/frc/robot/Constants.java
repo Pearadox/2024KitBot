@@ -41,7 +41,7 @@ public final class Constants {
     public static final double intakeLauncherSpeed = -1;
     public static final double intakeFeederSpeed = -0.2;
 
-    public static final double launcherDelay = 1; 
+    public static final double launcherDelay = .5414*2; // 🤯
   }
   
 }

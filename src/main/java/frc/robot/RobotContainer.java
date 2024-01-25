@@ -58,7 +58,7 @@ public class RobotContainer {
       .handleInterrupt(() -> launcher.stop()));
 
     // intakes when operator holds left bumper
-    operatorController.leftBumper().whileTrue(launcher.getIntakeCommand());
+    operatorController.leftBumper().whileTrue(new Intake(launcher));
   }
 
   /**

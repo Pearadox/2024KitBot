@@ -25,25 +25,17 @@ public class Launcher extends SubsystemBase {
       
     m_launchWheel = new VictorSPX(LauncherConstants.launcherID);
     m_feedWheel = new VictorSPX(LauncherConstants.feederID);
+
     m_launchWheel.configFactoryDefault();
     m_feedWheel.configFactoryDefault();
-    m_launchWheel.setInverted(true);
+
+    m_launchWheel.setInverted(false);
     m_feedWheel.setInverted(false);
+    
     m_launchWheel.setNeutralMode(NeutralMode.Coast);
     m_feedWheel.setNeutralMode(NeutralMode.Coast);
 
     // to do -- figure out current limit, burn flash (not on victor spx?)
-  }
-
-  public Command getIntakeCommand() {
-    return this.startEnd(
-      // sets wheels to intake speed values upon init
-      () -> {
-        setLaunchWheel(LauncherConstants.launchFeederSpeed);
-        setFeedWheel(LauncherConstants.intakeFeederSpeed);
-      },
-      // stop wheels when command stops
-      () -> { stop(); });
   }
 
   public void setLaunchWheel(double speed) {
