@@ -6,13 +6,9 @@ package frc.robot.subsystems;
 
 import static frc.robot.Constants.LauncherConstants;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
-
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import frc.lib.drivers.PearadoxSparkMax;
-import edu.wpi.first.wpilibj.motorcontrol.Victor;
-import edu.wpi.first.wpilibj.motorcontrol.VictorSP;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Launcher extends SubsystemBase {
@@ -29,31 +25,29 @@ public class Launcher extends SubsystemBase {
     m_launchWheel = new VictorSPX(LauncherConstants.launcherID);
     m_feedWheel = new VictorSPX(LauncherConstants.feederID);
 
-       
-  }
+    m_launchWheel.configFactoryDefault();
+    m_feedWheel.configFactoryDefault();
 
-  public Command getIntakeCommand() {
-    return this.startEnd(
-      // sets wheels to intake speed values upon init
-      () -> {
-        setLaunchWheel(LauncherConstants.launchFeederSpeed);
-        setFeedWheel(LauncherConstants.intakeFeederSpeed);
-      },
-      // stop wheels when command stops
-      () -> { stop(); });
+    m_launchWheel.setInverted(false);
+    m_feedWheel.setInverted(false);
+
+    m_launchWheel.setNeutralMode(NeutralMode.Coast);
+    m_feedWheel.setNeutralMode(NeutralMode.Coast);
+
+    // to do -- figure out current limit, burn flash (not on victor spx?)
   }
 
   public void setLaunchWheel(double speed) {
-    m_launchWheel.set(speed);
+    m_launchWheel.set(ControlMode.PercentOutput, speed);
   }
 
   public void setFeedWheel(double speed) {
-    m_feedWheel.set(speed);
+    m_feedWheel.set(ControlMode.PercentOutput, speed);
   }
 
   public void stop() {
-    m_launchWheel.set(0);
-    m_feedWheel.set(0);
+    m_launchWheel.set(ControlMode.PercentOutput, 0);
+    m_feedWheel.set(ControlMode.PercentOutput, 0);
   }
 
   @Override

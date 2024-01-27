@@ -19,7 +19,6 @@ public final class Constants {
   }
   
   public static class DrivetrainConstants {
-    
     public static final int leftFrontID = 10;
     public static final int rightFrontID = 13;
     public static final int leftBackID = 11; 
@@ -29,6 +28,7 @@ public final class Constants {
 
     public static final int limit = 45;
   }
+  
   public static class LauncherConstants {
     public static final int feederID = 5;
     public static final int launcherID = 6;
@@ -41,7 +41,16 @@ public final class Constants {
     public static final double intakeLauncherSpeed = -1;
     public static final double intakeFeederSpeed = -0.2;
 
-    public static final double launcherDelay = 1; 
+    public static final double launcherDelay = .5414*2; // 🤯💀💀💀💀💀💀
   }
   
+  public static class ClimberConstants {
+    public static final int climberID = 9;
+    public static final int climberLimit = 45; // change?
+  }
+
+  public static class rollerClawConstants {
+    public static final int rollerClawID = 7;
+    public static final int rollerClawLimit = 45; // change?
+  }
 }
