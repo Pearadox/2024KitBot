@@ -23,7 +23,7 @@ public class RobotContainer {
   // Replace with CommandPS4Controller or CommandJoystick if needed
 
   private final Drivetrain drivetrain = new Drivetrain();
-  // private final Launcher launcher = new Launcher();
+  private final Launcher launcher = new Launcher();
 
   private final CommandXboxController driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
