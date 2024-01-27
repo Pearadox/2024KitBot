@@ -26,8 +26,8 @@ public class Launcher extends SubsystemBase {
     //  m_feedWheel = new PearadoxSparkMax(LauncherConstants.feederID, 
     //    MotorType.kBrushed, PearadoxSparkMax.IdleMode.kCoast, LauncherConstants.feederCurrentLimit, false);
       
-    m_launchWheel = new VictorSPX(LauncherConstants.launcherID)
-    m_feedWheel = new VictorSPX(LauncherConstants.feederID)
+    m_launchWheel = new VictorSPX(LauncherConstants.launcherID);
+    m_feedWheel = new VictorSPX(LauncherConstants.feederID);
 
        
   }
