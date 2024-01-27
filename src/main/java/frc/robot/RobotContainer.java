@@ -23,7 +23,7 @@ public class RobotContainer {
   // Replace with CommandPS4Controller or CommandJoystick if needed
 
   private final Drivetrain drivetrain = new Drivetrain();
-  // private final Launcher launcher = new Launcher();
+  private final Launcher launcher = new Launcher();
 
   private final CommandXboxController driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
@@ -50,15 +50,15 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-
     // when operator holds A button, run PrepareLaunch for 1 sec, then run LaunchNote
-    /* operatorController.a().whileTrue(new PrepearLaunch(launcher)
+    operatorController.a().whileTrue(new PrepearLaunch(launcher)
       .withTimeout(LauncherConstants.launcherDelay)
       .andThen(new LaunchNote(launcher))
       .handleInterrupt(() -> launcher.stop()));
 
     // intakes when operator holds left bumper
-    operatorController.leftBumper().whileTrue(launcher.getIntakeCommand()); */
+
+    operatorController.leftBumper().whileTrue(new Intake(launcher));
   }
 
   /**
@@ -70,5 +70,4 @@ public class RobotContainer {
     // An example command will be run in autonomous
     return null;
   }
-
 }

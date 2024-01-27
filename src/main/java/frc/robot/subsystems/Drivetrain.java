@@ -28,7 +28,7 @@ public class Drivetrain extends SubsystemBase {
   /** Creates a new Drivetrain. */
   DifferentialDrive m_drivetrain;
 
-  public Drivetrain() {    
+  public Drivetrain() {
     leftBack.follow(leftFront);
     rightBack.follow(rightFront);
 

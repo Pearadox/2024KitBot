@@ -28,7 +28,7 @@ public class Drive extends Command {
   @Override
   public void execute() {
     double speed = -drivercontroller.getLeftY();
-    double turn = -drivercontroller.getRightX(); 
+    double turn = drivercontroller.getRightX(); 
 
     if (Math.abs(speed) < DrivetrainConstants.deadBan) {
       speed = 0;
