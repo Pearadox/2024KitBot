@@ -4,25 +4,24 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkLowLevel.MotorType;
+import static frc.robot.Constants.RollerClawConstants;
 
+import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.drivers.PearadoxSparkMax;
-import frc.robot.Constants.ClimberConstants;
 
-public class Climber extends SubsystemBase {
-  private final PearadoxSparkMax climber = new PearadoxSparkMax(ClimberConstants.climberID, 
-    MotorType.kBrushless, PearadoxSparkMax.IdleMode.kCoast, ClimberConstants.climberLimit, false);
-  
-  /** Creates a new Climber. */
-  public Climber() {}
+public class RollerClaw extends SubsystemBase {
+  private final PearadoxSparkMax rollerClaw = new PearadoxSparkMax(RollerClawConstants.rollerClawID, 
+    MotorType.kBrushed, PearadoxSparkMax.IdleMode.kCoast, RollerClawConstants.rollerClawLimit, false);
+  /** Creates a new RollerClaw. */
+  public RollerClaw() {}
 
   public void setClimber(double speed) {
-    climber.set(speed);
+    rollerClaw.set(speed);
   }
 
   public void stop() {
-    climber.set(0);
+    rollerClaw.set(0);
   }
 
   @Override
