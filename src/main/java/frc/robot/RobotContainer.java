@@ -24,6 +24,8 @@ public class RobotContainer {
 
   private final Drivetrain drivetrain = new Drivetrain();
   private final Launcher launcher = new Launcher();
+  private final Climber climber = new Climber();
+  // private final RollerClaw rollerClaw = new RollerClaw();
 
   private final CommandXboxController driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
@@ -57,8 +59,12 @@ public class RobotContainer {
       .handleInterrupt(() -> launcher.stop()));
 
     // intakes when operator holds left bumper
-
     operatorController.leftBumper().whileTrue(new Intake(launcher));
+    
+    // climbs up when operator holds dpad up
+    operatorController.povUp().whileTrue(new ClimbUp(climber));
+    // climbs down when operator holds dpad down
+    operatorController.povDown().whileTrue(new ClimbDown(climber));
   }
 
   /**

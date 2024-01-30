@@ -40,6 +40,8 @@ public final class Constants {
     public static final double launchFeederSpeed = 1;
     public static final double intakeLauncherSpeed = -1;
     public static final double intakeFeederSpeed = -0.2;
+    public static final double ampLauncherSpeed = 0.17; // 0.14 w/o polycarb bend, from everybot team testing
+    public static final double ampFeederSpeed = 0.4; 
 
     public static final double launcherDelay = .5414*2; // 🤯💀💀💀💀💀💀
   }
@@ -47,10 +49,16 @@ public final class Constants {
   public static class ClimberConstants {
     public static final int climberID = 9;
     public static final int climberLimit = 45; // change?
+    
+    public static final double climbUpSpeed = 1;
+    public static final double climbDownSpeed = -1;
   }
 
-  public static class rollerClawConstants {
+  public static class RollerClawConstants {
     public static final int rollerClawID = 7;
-    public static final int rollerClawLimit = 45; // change?
+    public static final int rollerClawLimit = 45; // CIM, brushed
+
+    public static final double clawSpeed = 0.5;
+    public static final double clawStallSpeed = 0.1;
   }
 }
