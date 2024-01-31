@@ -12,7 +12,7 @@ import frc.robot.Constants.ClimberConstants;
 
 public class Climber extends SubsystemBase {
   private final PearadoxSparkMax climber = new PearadoxSparkMax(ClimberConstants.climberID, 
-    MotorType.kBrushless, PearadoxSparkMax.IdleMode.kCoast, ClimberConstants.climberLimit, false);
+    MotorType.kBrushless, PearadoxSparkMax.IdleMode.kBrake, ClimberConstants.climberLimit, false);
   
   /** Creates a new Climber. */
   public Climber() {}

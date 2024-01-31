@@ -12,7 +12,7 @@ import frc.lib.drivers.PearadoxSparkMax;
 
 public class RollerClaw extends SubsystemBase {
   private final PearadoxSparkMax rollerClaw = new PearadoxSparkMax(RollerClawConstants.rollerClawID, 
-    MotorType.kBrushed, PearadoxSparkMax.IdleMode.kCoast, RollerClawConstants.rollerClawLimit, false);
+    MotorType.kBrushed, PearadoxSparkMax.IdleMode.kBrake, RollerClawConstants.rollerClawLimit, false);
   /** Creates a new RollerClaw. */
   public RollerClaw() {}
 
