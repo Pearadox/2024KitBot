@@ -11,12 +11,15 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.drivers.PearadoxSparkMax;
 
 public class RollerClaw extends SubsystemBase {
+  //maybe change to a VictorSPX later (brushed)
   private final PearadoxSparkMax rollerClaw = new PearadoxSparkMax(RollerClawConstants.rollerClawID, 
     MotorType.kBrushed, PearadoxSparkMax.IdleMode.kCoast, RollerClawConstants.rollerClawLimit, false);
   /** Creates a new RollerClaw. */
-  public RollerClaw() {}
+  public RollerClaw() {
+    
+  }
 
-  public void setClimber(double speed) {
+  public void setRollerClaw(double speed) {
     rollerClaw.set(speed);
   }
 
