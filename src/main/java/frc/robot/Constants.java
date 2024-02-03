@@ -62,4 +62,8 @@ public final class Constants {
     public static final double clawStallSpeed = 0.1;
     public static final double clawShootSpeed = -0.5;
   }
+
+  public static class AutonConstants {
+    
+  }
 }
