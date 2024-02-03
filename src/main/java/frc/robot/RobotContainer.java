@@ -25,7 +25,7 @@ public class RobotContainer {
   private final Drivetrain drivetrain = new Drivetrain();
   private final Launcher launcher = new Launcher();
   private final Climber climber = new Climber();
-  // private final RollerClaw rollerClaw = new RollerClaw();
+  private final RollerClaw rollerClaw = new RollerClaw();
 
   private final CommandXboxController driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
@@ -52,8 +52,8 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    // when operator holds A button, run PrepareLaunch for 1 sec, then run LaunchNote
-    operatorController.a().whileTrue(new PrepearLaunch(launcher)
+    // when operator holds roight bumper, run PrepareLaunch for 1 sec, then run LaunchNote
+    operatorController.rightBumper().whileTrue(new PrepearLaunch(launcher)
       .withTimeout(LauncherConstants.launcherDelay)
       .andThen(new LaunchNote(launcher))
       .handleInterrupt(() -> launcher.stop()));
@@ -65,6 +65,12 @@ public class RobotContainer {
     operatorController.povUp().whileTrue(new ClimbUp(climber));
     // climbs down when operator holds dpad down
     operatorController.povDown().whileTrue(new ClimbDown(climber));
+
+    // intakes with roller when x button is pressed
+    operatorController.x().whileTrue(new RollerIntake(rollerClaw));
+    // shoots with roller when b button is pressed
+    operatorController.b().whileTrue(new RollerLaunch(rollerClaw));
+
   }
 
   /**
