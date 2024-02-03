@@ -25,7 +25,7 @@ public class RobotContainer {
   private final Drivetrain drivetrain = new Drivetrain();
   private final Launcher launcher = new Launcher();
   private final Climber climber = new Climber();
-  private final RollerClaw rollerClaw = new RollerClaw();
+  // private final RollerClaw rollerClaw = new RollerClaw();
 
   private final CommandXboxController driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
@@ -66,10 +66,10 @@ public class RobotContainer {
     // climbs down when operator holds dpad down
     operatorController.povDown().whileTrue(new ClimbDown(climber));
 
-    // intakes with roller when x button is pressed
-    operatorController.x().whileTrue(new RollerIntake(rollerClaw));
-    // shoots with roller when b button is pressed
-    operatorController.b().whileTrue(new RollerLaunch(rollerClaw));
+    // // intakes with roller when x button is pressed
+    // operatorController.x().whileTrue(new RollerIntake(rollerClaw));
+    // // shoots with roller when b button is pressed
+    // operatorController.b().whileTrue(new RollerLaunch(rollerClaw));
 
   }
 
