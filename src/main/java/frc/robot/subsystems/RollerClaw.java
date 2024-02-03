@@ -2,33 +2,33 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems;
+// package frc.robot.subsystems;
 
-import static frc.robot.Constants.RollerClawConstants;
+// import static frc.robot.Constants.RollerClawConstants;
 
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.lib.drivers.PearadoxSparkMax;
+// import com.revrobotics.CANSparkLowLevel.MotorType;
+// import edu.wpi.first.wpilibj2.command.SubsystemBase;
+// import frc.lib.drivers.PearadoxSparkMax;
 
-public class RollerClaw extends SubsystemBase {
-  //maybe change to a VictorSPX later (brushed)
-  private final PearadoxSparkMax rollerClaw = new PearadoxSparkMax(RollerClawConstants.rollerClawID, 
-    MotorType.kBrushed, PearadoxSparkMax.IdleMode.kCoast, RollerClawConstants.rollerClawLimit, false);
-  /** Creates a new RollerClaw. */
-  public RollerClaw() {
+// public class RollerClaw extends SubsystemBase {
+//   //maybe change to a VictorSPX later (brushed)
+//   private final PearadoxSparkMax rollerClaw = new PearadoxSparkMax(RollerClawConstants.rollerClawID, 
+//     MotorType.kBrushed, PearadoxSparkMax.IdleMode.kCoast, RollerClawConstants.rollerClawLimit, false);
+//   /** Creates a new RollerClaw. */
+//   public RollerClaw() {
     
-  }
+//   }
 
-  public void setRollerClaw(double speed) {
-    rollerClaw.set(speed);
-  }
+//   public void setRollerClaw(double speed) {
+//     rollerClaw.set(speed);
+//   }
 
-  public void stop() {
-    rollerClaw.set(0);
-  }
+//   public void stop() {
+//     rollerClaw.set(0);
+//   }
 
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-  }
-}
+//   @Override
+//   public void periodic() {
+//     // This method will be called once per scheduler run
+//   }
+// }
