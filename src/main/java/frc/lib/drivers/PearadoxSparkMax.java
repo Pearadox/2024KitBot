@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.lib.drivers;
 
 import com.revrobotics.CANSparkMax;
@@ -12,49 +8,56 @@ import edu.wpi.first.wpilibj.Preferences;
 public class PearadoxSparkMax extends CANSparkMax {
     /**
      * Creates a new CANSparkMax with the necessary configurations.
-     * @param deviceId The device ID.
-     * @param m The motor type (Brushed/Brushless).
-     * @param mode The idle mode (kBrake/kCoast).
-     * @param limit The current limit.
-     * @param isInverted The invert type of the motor.
+     * 
+     * @param deviceId     The device ID.
+     * @param motorType    The motor type (Brushed/Brushless).
+     * @param idleMode     The idle mode (kBrake/kCoast).
+     * @param currentLimit The current limit.
+     * @param isInverted   The invert type of the motor.
+     * @param following    The CANSparkMax of the motor this motor should follow
      */
-    public PearadoxSparkMax(int deviceId, MotorType m, IdleMode mode, int limit, boolean isInverted){
-        super(deviceId, m);
+    public PearadoxSparkMax(int deviceId, MotorType motorType, IdleMode idleMode, int currentLimit, boolean isInverted,
+            CANSparkMax following, double rampRate) {
+        super(deviceId, motorType);
         this.restoreFactoryDefaults();
-        this.setSmartCurrentLimit(limit);
+        this.setSmartCurrentLimit(currentLimit);
         this.setInverted(isInverted);
-        this.setIdleMode(mode);
+        this.setIdleMode(idleMode);
+        if (following != null) {
+            this.follow(following);
+        }
+        this.setOpenLoopRampRate(rampRate);
         this.burnFlash();
         String key = "Spark " + this.getDeviceId() + " Flashes";
         Preferences.setDouble(key, Preferences.getDouble(key, 0) + 1);
     }
 
     /**
-     * Creates a new CANSparkMax with the necessary motor and PID configurations.
-     * @param deviceId The device ID.
-     * @param m The motor type (Brushed/Brushless).
-     * @param mode The idle mode (kBrake/kCoast).
-     * @param limit The current limit.
-     * @param isInverted The invert type of the motor.
-     * @param kP The proportional gain value.
-     * @param kI The integral gain value.
-     * @param kD The derivative gain value.
-     * @param minOutput Reverse power minimum to allow the controller to output
-     * @param maxOutput Reverse power maximum to allow the controller to output
+     * Creates a new CANSparkMax with the necessary configurations.
+     * 
+     * @param deviceId     The device ID.
+     * @param motorType    The motor type (Brushed/Brushless).
+     * @param idleMode     The idle mode (kBrake/kCoast).
+     * @param currentLimit The current limit.
+     * @param isInverted   The invert type of the motor.
      */
-    public PearadoxSparkMax(int deviceId, MotorType m, IdleMode mode, int limit, boolean isInverted, 
-        double kP, double kI, double kD, double minOutput, double maxOutput){
-        super(deviceId, m);
-        this.restoreFactoryDefaults();
-        this.setSmartCurrentLimit(limit);
-        this.setInverted(isInverted);
-        this.setIdleMode(mode);
-        this.getPIDController().setP(kP, 0);
-        this.getPIDController().setI(kI, 0);
-        this.getPIDController().setD(kD, 0);
-        this.getPIDController().setOutputRange(minOutput, maxOutput, 0);
-        this.burnFlash();
-        String key = "Spark " + this.getDeviceId() + " Flashes";
-        Preferences.setDouble(key, Preferences.getDouble(key, 0) + 1);
+    public PearadoxSparkMax(int deviceId, MotorType motorType, IdleMode idleMode, int currentLimit,
+            boolean isInverted) {
+        this(deviceId, motorType, idleMode, currentLimit, isInverted, null, 0);
     }
+    
+    /**
+     * Creates a new CANSparkMax with the necessary configurations.
+     * 
+     * @param deviceId     The device ID.
+     * @param motorType    The motor type (Brushed/Brushless).
+     * @param idleMode     The idle mode (kBrake/kCoast).
+     * @param currentLimit The current limit.
+     * @param isInverted   The invert type of the motor.
+     */
+    public PearadoxSparkMax(int deviceId, MotorType motorType, IdleMode idleMode, int currentLimit,
+            boolean isInverted, double rampRate) {
+        this(deviceId, motorType, idleMode, currentLimit, isInverted, null, rampRate);
+    }
+
 }
