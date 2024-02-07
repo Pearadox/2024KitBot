@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.util.Units;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -27,6 +29,8 @@ public final class Constants {
     public static final double deadBan = 0.1;
 
     public static final int limit = 45;
+
+    public static final double encoderConversionFactor = Units.inchesToMeters(6*Math.PI) / 10.71;
   }
   
   public static class LauncherConstants {
@@ -43,7 +47,7 @@ public final class Constants {
     public static final double ampLauncherSpeed = 0.17; // 0.14 w/o polycarb bend, from everybot team testing
     public static final double ampFeederSpeed = 0.4; 
 
-    public static final double launcherDelay = .5414*2; // 🤯💀💀💀💀💀💀
+    public static final double launcherDelay = .5414*2; // pretend there are emojis here
   }
   
   public static class ClimberConstants {
@@ -61,5 +65,9 @@ public final class Constants {
     public static final double clawSpeed = 0.5;
     public static final double clawStallSpeed = 0.1;
     public static final double clawShootSpeed = -0.5;
+  }
+
+  public static class AutonConstants {
+    
   }
 }
