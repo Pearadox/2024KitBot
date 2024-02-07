@@ -4,22 +4,18 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.RollerClawConstants;
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
-import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.lib.drivers.PearadoxSparkMax;
-import frc.robot.Constants.LauncherConstants;
+import frc.robot.Constants.RollerClawConstants;
 
 public class RollerClaw extends SubsystemBase {
   //maybe change to a VictorSPX later (brushed)
   VictorSPX rollerClaw;
   /** Creates a new RollerClaw. */
   public RollerClaw() {
-    rollerClaw = new VictorSPX(LauncherConstants.launcherID);
+    rollerClaw = new VictorSPX(RollerClawConstants.rollerClawID);
 
     rollerClaw.configFactoryDefault();
 
