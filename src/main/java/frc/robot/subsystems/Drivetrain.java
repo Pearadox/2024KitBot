@@ -28,6 +28,8 @@ public class Drivetrain extends SubsystemBase {
   private final PearadoxSparkMax rightBack = new PearadoxSparkMax(DrivetrainConstants.rightBackID, 
     MotorType.kBrushless, PearadoxSparkMax.IdleMode.kBrake, DrivetrainConstants.limit, false, rightFront, 0);
   
+  private final RelativeEncoder leftFrontEncoder = leftFront.getEncoder();
+
   /** Creates a new Drivetrain. */
   DifferentialDrive m_drivetrain;
 

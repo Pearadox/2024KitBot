@@ -47,7 +47,7 @@ public final class Constants {
     public static final double ampLauncherSpeed = 0.17; // 0.14 w/o polycarb bend, from everybot team testing
     public static final double ampFeederSpeed = 0.4; 
 
-    public static final double launcherDelay = .5414*2; // 🤯💀💀💀💀💀💀💀
+    public static final double launcherDelay = .5414*2; // pretend there are emojis here
   }
   
   public static class ClimberConstants {
