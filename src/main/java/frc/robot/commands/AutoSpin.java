@@ -13,9 +13,8 @@ public class AutoSpin extends Command {
   // initializes drivetrain object
   private Drivetrain drivetrain;
 
-  private double stopTime = 2;
   // intiializes timeSinceStart 
-  private Timer timeSinceStart = new Timer();
+  private long startTime;
 
   /** Creates a new CrossTheLine. */
   public AutoSpin(Drivetrain drivetrain) {
@@ -27,13 +26,13 @@ public class AutoSpin extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    timeSinceStart.restart();
+    startTime = System.currentTimeMillis();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    drivetrain.arcadeDrive(0.0, 0.5);
+    drivetrain.arcadeDrive(0.0, 0.6);
   }
 
   // Called once the command ends or is interrupted.
@@ -45,6 +44,6 @@ public class AutoSpin extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return timeSinceStart.get() >= stopTime;
+    return (System.currentTimeMillis() - startTime >= 2000);
   }
 }

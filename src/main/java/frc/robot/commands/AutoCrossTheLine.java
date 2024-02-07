@@ -33,7 +33,7 @@ public class AutoCrossTheLine extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    drivetrain.arcadeDrive(0.3, 0.0);    
+    drivetrain.arcadeDrive(-0.6, 0.0);    
   }
   
   // Called once the command ends or is interrupted.

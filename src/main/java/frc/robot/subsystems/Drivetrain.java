@@ -16,16 +16,16 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 
 public class Drivetrain extends SubsystemBase {
   private final PearadoxSparkMax leftFront = new PearadoxSparkMax(DrivetrainConstants.leftFrontID, 
-    MotorType.kBrushless, PearadoxSparkMax.IdleMode.kCoast, DrivetrainConstants.limit, false);
+    MotorType.kBrushless, PearadoxSparkMax.IdleMode.kBrake, DrivetrainConstants.limit, false);
       
   private final PearadoxSparkMax rightFront = new PearadoxSparkMax(DrivetrainConstants.rightFrontID, 
-    MotorType.kBrushless, PearadoxSparkMax.IdleMode.kCoast, DrivetrainConstants.limit, true);
+    MotorType.kBrushless, PearadoxSparkMax.IdleMode.kBrake, DrivetrainConstants.limit, true);
   
   private final PearadoxSparkMax leftBack = new PearadoxSparkMax(DrivetrainConstants.leftBackID, 
-    MotorType.kBrushless, PearadoxSparkMax.IdleMode.kCoast, DrivetrainConstants.limit, false);
+    MotorType.kBrushless, PearadoxSparkMax.IdleMode.kBrake, DrivetrainConstants.limit, false);
   
   private final PearadoxSparkMax rightBack = new PearadoxSparkMax(DrivetrainConstants.rightBackID, 
-    MotorType.kBrushless, PearadoxSparkMax.IdleMode.kCoast, DrivetrainConstants.limit, true);
+    MotorType.kBrushless, PearadoxSparkMax.IdleMode.kBrake, DrivetrainConstants.limit, true);
 
   private final RelativeEncoder leftFrontEncoder = leftFront.getEncoder();
   

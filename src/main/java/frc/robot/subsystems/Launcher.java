@@ -31,8 +31,8 @@ public class Launcher extends SubsystemBase {
     m_launchWheel.setInverted(false);
     m_feedWheel.setInverted(false);
 
-    m_launchWheel.setNeutralMode(NeutralMode.Coast);
-    m_feedWheel.setNeutralMode(NeutralMode.Coast);
+    m_launchWheel.setNeutralMode(NeutralMode.Brake);
+    m_feedWheel.setNeutralMode(NeutralMode.Brake);
 
     // to do -- figure out current limit, burn flash (not on victor spx?)
   }

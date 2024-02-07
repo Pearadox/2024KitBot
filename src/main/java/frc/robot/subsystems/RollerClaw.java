@@ -6,25 +6,34 @@ package frc.robot.subsystems;
 
 import static frc.robot.Constants.RollerClawConstants;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.drivers.PearadoxSparkMax;
+import frc.robot.Constants.LauncherConstants;
 
 public class RollerClaw extends SubsystemBase {
   //maybe change to a VictorSPX later (brushed)
-  private final PearadoxSparkMax rollerClaw = new PearadoxSparkMax(RollerClawConstants.rollerClawID, 
-    MotorType.kBrushed, PearadoxSparkMax.IdleMode.kCoast, RollerClawConstants.rollerClawLimit, false);
+  VictorSPX rollerClaw;
   /** Creates a new RollerClaw. */
   public RollerClaw() {
-    
+    rollerClaw = new VictorSPX(LauncherConstants.launcherID);
+
+    rollerClaw.configFactoryDefault();
+
+    rollerClaw.setInverted(false);
+
+    rollerClaw.setNeutralMode(NeutralMode.Brake);
   }
 
   public void setRollerClaw(double speed) {
-    rollerClaw.set(speed);
+    rollerClaw.set(ControlMode.PercentOutput, speed);
   }
 
   public void stop() {
-    rollerClaw.set(0);
+    rollerClaw.set(ControlMode.PercentOutput, 0);
   }
 
   @Override
