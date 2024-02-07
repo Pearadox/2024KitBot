@@ -4,7 +4,7 @@
 
 package frc.robot;
 
-import frc.robot.Constants.LauncherConstants;
+// import frc.robot.Constants.LauncherConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
@@ -53,10 +53,7 @@ public class RobotContainer {
    */
   private void configureBindings() {
     // when operator holds roight bumper, run PrepareLaunch for 1 sec, then run LaunchNote
-    operatorController.rightBumper().whileTrue(new PrepearLaunch(launcher)
-      .withTimeout(LauncherConstants.launcherDelay)
-      .andThen(new LaunchNote(launcher))
-      .handleInterrupt(() -> launcher.stop()));
+    operatorController.rightBumper().whileTrue(new LaunchGroup(launcher));
 
     // intakes when operator holds left bumper
     operatorController.leftBumper().whileTrue(new Intake(launcher));
@@ -80,6 +77,6 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return new AutoCrossAndSpin(drivetrain);
+    return new AutoCrossAndSpin(drivetrain, launcher);
   }
 }

@@ -6,7 +6,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Drivetrain;
-import edu.wpi.first.wpilibj.Timer;
+// import edu.wpi.first.wpilibj.Timer;
 
 public class AutoSpin extends Command {
 
@@ -32,7 +32,7 @@ public class AutoSpin extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    drivetrain.arcadeDrive(0.0, 0.6);
+    drivetrain.arcadeDrive(0.0, -0.4);
   }
 
   // Called once the command ends or is interrupted.
