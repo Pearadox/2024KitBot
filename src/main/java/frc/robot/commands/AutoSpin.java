@@ -21,6 +21,7 @@ public class AutoSpin extends Command {
   public AutoSpin(Drivetrain drivetrain) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drivetrain = drivetrain;
+    addRequirements(drivetrain);
   }
 
   // Called when the command is initially scheduled.
