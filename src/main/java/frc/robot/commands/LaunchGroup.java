@@ -22,6 +22,6 @@ public class LaunchGroup extends SequentialCommandGroup {
     .withTimeout(LauncherConstants.launcherDelay)
     .andThen(new LaunchNote(launcher))
     .handleInterrupt(() -> launcher.stop())
-    .withTimeout(5)); // change??
+    .withTimeout(2)); // change? to do: make constant
   }
 }

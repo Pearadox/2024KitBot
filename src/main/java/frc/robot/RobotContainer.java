@@ -8,6 +8,9 @@ package frc.robot;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
+// import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -27,6 +30,8 @@ public class RobotContainer {
   private final Climber climber = new Climber();
   // private final RollerClaw rollerClaw = new RollerClaw();
 
+  private final SendableChooser<Command> chooser = new SendableChooser<Command>();
+
   private final CommandXboxController driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
   private final CommandXboxController operatorController =
@@ -37,9 +42,12 @@ public class RobotContainer {
     // Configure the trigger bindings
     configureBindings();
 
-    drivetrain.setDefaultCommand(
-      new Drive(drivetrain, driverController)
-    );
+    drivetrain.setDefaultCommand(new Drive(drivetrain, driverController));
+
+    SmartDashboard.putData("Auton", chooser);
+    chooser.setDefaultOption("AutoSpin", new AutoSpin(drivetrain, 2));
+    chooser.addOption("Auto Cross And Spin", new AutoCrossAndSpin(drivetrain, launcher));
+    chooser.addOption("Launch Group", new LaunchGroup(launcher));
   }
 
   /**
@@ -77,6 +85,6 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return new AutoCrossAndSpin(drivetrain, launcher);
+    return chooser.getSelected();
   }
 }

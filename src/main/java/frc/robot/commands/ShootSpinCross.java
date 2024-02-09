@@ -12,18 +12,13 @@ import frc.robot.subsystems.Launcher;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class AutoCrossAndSpin extends SequentialCommandGroup {
-
-  // Drivetrain drivetrain;
-
-  /** Creates a new AutoCrossAndSpin. */
-  public AutoCrossAndSpin(Drivetrain drivetrain, Launcher launcher) {
-    
-    // this.drivetrain = drivetrain; 
-    
+public class ShootSpinCross extends SequentialCommandGroup {
+  /** Creates a new ShootSpinCross. */
+  public ShootSpinCross(Drivetrain drivetrain, Launcher launcher) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    addCommands(new AutoCrossTheLine(drivetrain, 3), new WaitCommand(1), 
-      new AutoSpin(drivetrain, 2), new WaitCommand(2), new LaunchGroup(launcher));
+    addCommands(new LaunchGroup(launcher), new WaitCommand(2),
+     new AutoSpin(drivetrain, 1), new WaitCommand(2), new AutoCrossTheLine(drivetrain, 1));
+     // change stopTimes before next time
   }
 }

@@ -15,14 +15,17 @@ public class AutoCrossTheLine extends Command {
 
   // initializes drivetrain object
   private Drivetrain drivetrain;
+  private long startTime;
+  private double stopTime;
 
   // intiializes timeSinceStart 
 
   /** Creates a new CrossTheLine. */
-  public AutoCrossTheLine(Drivetrain drivetrain) {
+  public AutoCrossTheLine(Drivetrain drivetrain, double stopTime) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drivetrain = drivetrain;
     addRequirements(drivetrain);
+    this.stopTime = stopTime * 1000;
   }
 
   // Called when the command is initially scheduled.
@@ -30,6 +33,7 @@ public class AutoCrossTheLine extends Command {
   public void initialize() {
     // timeSinceStart.restart();
     drivetrain.resetEncoders();
+    startTime = System.currentTimeMillis();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -48,6 +52,6 @@ public class AutoCrossTheLine extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {      
-    return (drivetrain.getDistance() >= 3);
+    return (System.currentTimeMillis() - startTime >= stopTime); //change 
   }
 }
