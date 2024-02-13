@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.Drivetrain;
@@ -17,8 +18,20 @@ public class ShootSpinCross extends SequentialCommandGroup {
   public ShootSpinCross(Drivetrain drivetrain, Launcher launcher) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    addCommands(new LaunchGroup(launcher), new WaitCommand(2),
-     new AutoSpin(drivetrain, 1), new WaitCommand(2), new AutoCrossTheLine(drivetrain, 1));
-     // change stopTimes before next time
+    addCommands(
+      new LaunchGroup(launcher),
+      new WaitCommand(2),
+      new AutoSpin(drivetrain, 1),
+      new WaitCommand(2),
+      new AutoCrossTheLine(drivetrain, 1)
+    );
+    
+    // TODO: change stopTimes before next time
+
+    // TODO: LaunchGroup() depends on an interrupt and interrupts don't naturally happen during auton, 
+    //       so the launcher will just continue running.  You should stop it from running before running your next commands.
+
+    // TODO: Spinning based on time is unpredictable, so if you do it before crossing the line you may not be pointing in
+    //       your intended direction.  Consider spinning after driving across the line.  (Remember you can drive backwards.)
   }
 }

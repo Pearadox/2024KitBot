@@ -16,7 +16,12 @@ public class LaunchGroup extends SequentialCommandGroup {
   public LaunchGroup(Launcher launcher) {
     // Add your commands in the addCommands() call, e.g.
 
+    // TODO: You don't need to call addRequirements in a command group since each command does this already
     addRequirements(launcher);
+
+    // TODO: Have you tested this fully in teleop?  This was structured in a way that it fit in robotContainer,
+    //       but it doesn't quite translate to a command group like this.
+
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(new PrepearLaunch(launcher)
     .withTimeout(LauncherConstants.launcherDelay)

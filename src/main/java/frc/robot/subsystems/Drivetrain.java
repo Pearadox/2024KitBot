@@ -36,6 +36,12 @@ public class Drivetrain extends SubsystemBase {
   /** Creates a new Drivetrain. */
   DifferentialDrive m_drivetrain;
 
+  // TODO: Integrate foundational code necessary for trajectory/path following
+  //       Helpful references:
+  //       https://docs.wpilib.org/en/stable/docs/software/pathplanning/trajectory-tutorial/index.html
+  //       https://github.com/Pearadox/2023Everybot/blob/master/src/main/java/frc/robot/subsystems/DriveTrain.java
+  //       https://github.com/Pearadox/2023Everybot/blob/master/src/main/java/frc/robot/Constants.java
+
   public Drivetrain() {
     // leftBack.follow(leftFront);
     // rightBack.follow(rightFront);
