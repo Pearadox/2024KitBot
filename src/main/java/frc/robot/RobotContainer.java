@@ -60,6 +60,8 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
+    // TODO: bind all the operator buttons also on the driver controller (no need for conditionals, just duplicate all the bindings)
+
     // when operator holds roight bumper, run PrepareLaunch for 1 sec, then run LaunchNote
     operatorController.rightBumper().whileTrue(new LaunchGroup(launcher));
 
