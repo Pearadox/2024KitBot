@@ -2,10 +2,13 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.commands.Autos;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.commands.LaunchGroup;
+import frc.robot.commands.Paths.AutoDrive;
+import frc.robot.commands.Paths.AutoSpin;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Launcher;
 
@@ -23,7 +26,7 @@ public class AutoCrossAndSpin extends SequentialCommandGroup {
     
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    addCommands(new AutoCrossTheLine(drivetrain, 3), new WaitCommand(1), 
-      new AutoSpin(drivetrain, 2), new WaitCommand(2), new LaunchGroup(launcher));
+    addCommands(new AutoDrive(drivetrain, 3, 0.4), new WaitCommand(1), 
+      new AutoSpin(drivetrain, 2, -0.4), new WaitCommand(2), new LaunchGroup(launcher));
   }
 }

@@ -2,11 +2,14 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.commands.Autos;
 
 // import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.commands.LaunchGroup;
+import frc.robot.commands.Paths.AutoDrive;
+import frc.robot.commands.Paths.AutoSpin;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Launcher;
 
@@ -21,9 +24,9 @@ public class ShootSpinCross extends SequentialCommandGroup {
     addCommands(
       new LaunchGroup(launcher),
       new WaitCommand(2),
-      new AutoCrossTheLine(drivetrain, 1),
+      new AutoDrive(drivetrain, 1, -0.4),
       new WaitCommand(2),
-      new AutoSpin(drivetrain, 1)
+      new AutoSpin(drivetrain, 1, -0.4)
     );
     
     // TODO: change stopTimes before next time

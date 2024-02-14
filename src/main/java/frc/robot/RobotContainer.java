@@ -7,6 +7,8 @@ package frc.robot;
 // import frc.robot.Constants.LauncherConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.*;
+import frc.robot.commands.Autos.AutoCrossAndSpin;
+import frc.robot.commands.Paths.AutoSpin;
 import frc.robot.subsystems.*;
 // import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -43,7 +45,7 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(new Drive(drivetrain, driverController));
     
     SmartDashboard.putData("Auton", chooser);
-    chooser.setDefaultOption("AutoSpin", new AutoSpin(drivetrain, 2));
+    chooser.setDefaultOption("AutoSpin", new AutoSpin(drivetrain, 2, -0.4));
     chooser.addOption("Auto Cross And Spin", new AutoCrossAndSpin(drivetrain, launcher));
     chooser.addOption("Launch Group", new LaunchGroup(launcher));    
     
