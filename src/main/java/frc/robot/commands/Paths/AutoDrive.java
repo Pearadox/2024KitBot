@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.commands.Paths;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -11,21 +11,23 @@ import frc.robot.subsystems.Drivetrain;
 // import frc.robot.Constants;
 // import frc.robot.Constants.*;
 
-public class AutoCrossTheLine extends Command {
+public class AutoDrive extends Command {
 
   // initializes drivetrain object
   private Drivetrain drivetrain;
   private long startTime;
   private double stopTime;
+  private double velocity;
 
   // intiializes timeSinceStart 
 
   /** Creates a new CrossTheLine. */
-  public AutoCrossTheLine(Drivetrain drivetrain, double stopTime) {
+  public AutoDrive(Drivetrain drivetrain, double stopTime, double velocity) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drivetrain = drivetrain;
     addRequirements(drivetrain);
     this.stopTime = stopTime * 1000;
+    this.velocity = velocity;
   }
 
   // Called when the command is initially scheduled.
@@ -39,7 +41,7 @@ public class AutoCrossTheLine extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    drivetrain.arcadeDrive(0.4, 0.0);    
+    drivetrain.arcadeDrive(velocity, 0.0);    
     SmartDashboard.putNumber("Encoder", drivetrain.getDistance());
   }
   
