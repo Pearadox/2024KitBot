@@ -4,7 +4,7 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.RunCommand;
+// import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.Drivetrain;
@@ -21,9 +21,9 @@ public class ShootSpinCross extends SequentialCommandGroup {
     addCommands(
       new LaunchGroup(launcher),
       new WaitCommand(2),
-      new AutoSpin(drivetrain, 1),
+      new AutoCrossTheLine(drivetrain, 1),
       new WaitCommand(2),
-      new AutoCrossTheLine(drivetrain, 1)
+      new AutoSpin(drivetrain, 1)
     );
     
     // TODO: change stopTimes before next time
