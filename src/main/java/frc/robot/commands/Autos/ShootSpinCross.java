@@ -24,9 +24,9 @@ public class ShootSpinCross extends SequentialCommandGroup {
     addCommands(
       new LaunchGroup(launcher),
       new WaitCommand(2),
-      new AutoDrive(drivetrain, 1, -0.4),
+      new AutoDrive(drivetrain, 3, -0.4),
       new WaitCommand(2),
-      new AutoSpin(drivetrain, 1, -0.4)
+      new AutoSpin(drivetrain, 1, 0.4)
     );
     
     // TODO: change stopTimes before next time
