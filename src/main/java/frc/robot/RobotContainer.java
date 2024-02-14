@@ -4,10 +4,13 @@
 
 package frc.robot;
 
-import frc.robot.Constants.LauncherConstants;
+// import frc.robot.Constants.LauncherConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
+// import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -25,21 +28,30 @@ public class RobotContainer {
   private final Drivetrain drivetrain = new Drivetrain();
   private final Launcher launcher = new Launcher();
   private final Climber climber = new Climber();
-  // private final RollerClaw rollerClaw = new RollerClaw();
+  private final RollerClaw rollerClaw = new RollerClaw();
+
+  private final SendableChooser<Command> chooser = new SendableChooser<Command>();
+  private final SendableChooser<Boolean> controllerChoose = new SendableChooser<Boolean>();
 
   private final CommandXboxController driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
   private final CommandXboxController operatorController =
-      new CommandXboxController(OperatorConstants.kOperatorControllerPort);
+      new CommandXboxController(OperatorConstants.kOperatorControllerPort);  
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
-  public RobotContainer() {
-    // Configure the trigger bindings
-    configureBindings();
-
-    drivetrain.setDefaultCommand(
-      new Drive(drivetrain, driverController)
-    );
+  public RobotContainer() {  
+    drivetrain.setDefaultCommand(new Drive(drivetrain, driverController));
+    
+    SmartDashboard.putData("Auton", chooser);
+    chooser.setDefaultOption("AutoSpin", new AutoSpin(drivetrain, 2));
+    chooser.addOption("Auto Cross And Spin", new AutoCrossAndSpin(drivetrain, launcher));
+    chooser.addOption("Launch Group", new LaunchGroup(launcher));    
+    
+    SmartDashboard.putData("Number of Controllers", controllerChoose);
+    controllerChoose.setDefaultOption("Driver + Operator", true);
+    controllerChoose.addOption("Driver Only", false);
+    
+    configureBindings();    
   }
 
   /**
@@ -51,25 +63,45 @@ public class RobotContainer {
    * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
-  private void configureBindings() {
-    // when operator holds roight bumper, run PrepareLaunch for 1 sec, then run LaunchNote
-    operatorController.rightBumper().whileTrue(new PrepearLaunch(launcher)
-      .withTimeout(LauncherConstants.launcherDelay)
-      .andThen(new LaunchNote(launcher))
-      .handleInterrupt(() -> launcher.stop()));
+  public void configureBindings() {
+    // DONE: bind all the operator buttons also on the driver controller (no need for conditionals, just duplicate all the bindings)
 
-    // intakes when operator holds left bumper
-    operatorController.leftBumper().whileTrue(new Intake(launcher));
-    
-    // climbs up when operator holds dpad up
-    operatorController.povUp().whileTrue(new ClimbUp(climber));
-    // climbs down when operator holds dpad down
-    operatorController.povDown().whileTrue(new ClimbDown(climber));
-
-    // // intakes with roller when x button is pressed
-    // operatorController.x().whileTrue(new RollerIntake(rollerClaw));
-    // // shoots with roller when b button is pressed
-    // operatorController.b().whileTrue(new RollerLaunch(rollerClaw));
+    if (controllerChoose.getSelected()) {
+      // when operator holds roight bumper, run PrepareLaunch for 1 sec, then run LaunchNote
+      operatorController.rightBumper().whileTrue(new LaunchGroup(launcher));
+  
+      // intakes when operator holds left bumper
+      operatorController.leftBumper().whileTrue(new Intake(launcher));
+      
+      // climbs up when operator holds dpad up
+      operatorController.povUp().whileTrue(new ClimbUp(climber));
+      // climbs down when operator holds dpad down
+      operatorController.povDown().whileTrue(new ClimbDown(climber));
+  
+      // intakes with roller when x button is pressed
+      operatorController.x().whileTrue(new RollerIntake(rollerClaw));
+      // shoots with roller when b button is pressed
+      operatorController.b().whileTrue(new RollerLaunch(rollerClaw));
+      
+    } else { 
+      // must restart robot for changes to occur
+      
+      // when driver holds roight bumper, run PrepareLaunch for 1 sec, then run LaunchNote
+      driverController.rightBumper().whileTrue(new LaunchGroup(launcher));
+  
+      // intakes when driver holds left bumper
+      driverController.leftBumper().whileTrue(new Intake(launcher));
+      
+      // climbs up when driver holds dpad up
+      driverController.povUp().whileTrue(new ClimbUp(climber));
+      // climbs down when driver holds dpad down
+      driverController.povDown().whileTrue(new ClimbDown(climber));
+  
+      // intakes with roller when x button is pressed
+      driverController.x().whileTrue(new RollerIntake(rollerClaw));
+      // shoots with roller when b button is pressed
+      driverController.b().whileTrue(new RollerLaunch(rollerClaw));
+    }
 
   }
 
@@ -80,6 +112,6 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return new AutoCrossAndSpin(drivetrain);
+    return chooser.getSelected();
   }
 }

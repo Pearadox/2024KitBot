@@ -6,7 +6,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Drivetrain;
-import edu.wpi.first.wpilibj.Timer;
+// import edu.wpi.first.wpilibj.Timer;
 
 public class AutoSpin extends Command {
 
@@ -15,12 +15,15 @@ public class AutoSpin extends Command {
 
   // intiializes timeSinceStart 
   private long startTime;
+  private double stopTime;
 
   /** Creates a new CrossTheLine. */
-  public AutoSpin(Drivetrain drivetrain) {
+  public AutoSpin(Drivetrain drivetrain, double stopTime) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drivetrain = drivetrain;
     addRequirements(drivetrain);
+
+    this.stopTime = stopTime * 1000;
   }
 
   // Called when the command is initially scheduled.
@@ -32,7 +35,7 @@ public class AutoSpin extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    drivetrain.arcadeDrive(0.0, 0.6);
+    drivetrain.arcadeDrive(0.0, -0.4);
   }
 
   // Called once the command ends or is interrupted.
@@ -44,6 +47,6 @@ public class AutoSpin extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return (System.currentTimeMillis() - startTime >= 2000);
+    return (System.currentTimeMillis() - startTime >= stopTime);
   }
 }

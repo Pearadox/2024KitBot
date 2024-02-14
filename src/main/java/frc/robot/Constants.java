@@ -61,7 +61,7 @@ public final class Constants {
   public static class RollerClawConstants {
     public static final int rollerClawID = 7;
     public static final int rollerClawLimit = 45; // CIM, brushed
-
+    
     public static final double clawSpeed = 0.5;
     public static final double clawStallSpeed = 0.1;
     public static final double clawShootSpeed = -0.5;

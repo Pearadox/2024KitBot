@@ -29,9 +29,18 @@ public class Drivetrain extends SubsystemBase {
     MotorType.kBrushless, PearadoxSparkMax.IdleMode.kBrake, DrivetrainConstants.limit, false, rightFront, 0);
   
   private final RelativeEncoder leftFrontEncoder = leftFront.getEncoder();
+  private final RelativeEncoder rightFrontEncoder = rightFront.getEncoder();
+  private final RelativeEncoder leftBackEncoder = leftBack.getEncoder();
+  private final RelativeEncoder rightBackEncoder = rightBack.getEncoder();
 
   /** Creates a new Drivetrain. */
   DifferentialDrive m_drivetrain;
+
+  // TODO: Integrate foundational code necessary for trajectory/path following
+  //       Helpful references:
+  //       https://docs.wpilib.org/en/stable/docs/software/pathplanning/trajectory-tutorial/index.html
+  //       https://github.com/Pearadox/2023Everybot/blob/master/src/main/java/frc/robot/subsystems/DriveTrain.java
+  //       https://github.com/Pearadox/2023Everybot/blob/master/src/main/java/frc/robot/Constants.java
 
   public Drivetrain() {
     // leftBack.follow(leftFront);
@@ -40,7 +49,10 @@ public class Drivetrain extends SubsystemBase {
     m_drivetrain = new DifferentialDrive(leftFront, rightFront);
     
     // 6 inch wheel, 10.71:1 gear ratio
-    leftFrontEncoder.setPositionConversionFactor(DrivetrainConstants.encoderConversionFactor);    
+    leftFrontEncoder.setPositionConversionFactor(DrivetrainConstants.encoderConversionFactor);
+    rightFrontEncoder.setPositionConversionFactor(DrivetrainConstants.encoderConversionFactor);
+    leftBackEncoder.setPositionConversionFactor(DrivetrainConstants.encoderConversionFactor);
+    rightBackEncoder.setPositionConversionFactor(DrivetrainConstants.encoderConversionFactor);
   }
 
   public void arcadeDrive(double throttle, double twist) {
@@ -51,16 +63,20 @@ public class Drivetrain extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     SmartDashboard.putNumber("Left Front", leftFront.getOutputCurrent());
-    SmartDashboard.putNumber("Left Back", leftBack.getOutputCurrent());
     SmartDashboard.putNumber("Right Front", rightFront.getOutputCurrent());
+    SmartDashboard.putNumber("Left Back", leftBack.getOutputCurrent());
     SmartDashboard.putNumber("Right Back", rightBack.getOutputCurrent());
   }
 
   public double getDistance() {
-    return leftFrontEncoder.getPosition(); // tp do: use right encoder
+    return (leftFrontEncoder.getPosition() + rightFrontEncoder.getPosition() + 
+      leftBackEncoder.getPosition() + rightBackEncoder.getPosition()) / 4.0;
   }
 
   public void resetEncoders() {
     leftFrontEncoder.setPosition(0);
+    rightFrontEncoder.setPosition(0);
+    leftBackEncoder.setPosition(0);
+    rightBackEncoder.setPosition(0);
   }
 }
