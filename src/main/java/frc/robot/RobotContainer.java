@@ -34,7 +34,7 @@ public class RobotContainer {
   private final RollerClaw rollerClaw = new RollerClaw();
 
   private final SendableChooser<Command> chooser = new SendableChooser<Command>();
-  private final SendableChooser<Boolean> controllerChoose = new SendableChooser<Boolean>();
+  //private final SendableChooser<Boolean> controllerChoose = new SendableChooser<Boolean>();
 
   private final CommandXboxController driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
@@ -51,9 +51,9 @@ public class RobotContainer {
     chooser.addOption("Launch Group", new LaunchGroup(launcher));    
     chooser.addOption("Auto Shoot Spin Cross", new ShootSpinCross(drivetrain, launcher));
     
-    SmartDashboard.putData("Number of Controllers", controllerChoose);
-    controllerChoose.setDefaultOption("Driver + Operator", true);
-    controllerChoose.addOption("Driver Only", false);
+    //SmartDashboard.putData("Number of Controllers", controllerChoose);
+    //controllerChoose.setDefaultOption("Driver + Operator", true);
+    //controllerChoose.addOption("Driver Only", false);
     
     configureBindings();    
   }
@@ -70,7 +70,7 @@ public class RobotContainer {
   public void configureBindings() {
     // DONE: bind all the operator buttons also on the driver controller (no need for conditionals, just duplicate all the bindings)
 
-    if (controllerChoose.getSelected()) {
+    // if (controllerChoose.getSelected()) {
       // when operator holds roight bumper, run PrepareLaunch for 1 sec, then run LaunchNote
       operatorController.rightBumper().whileTrue(new LaunchGroup(launcher));
   
@@ -87,7 +87,7 @@ public class RobotContainer {
       // shoots with roller when b button is pressed
       operatorController.b().whileTrue(new RollerLaunch(rollerClaw));
       
-    } else { 
+    // } else { 
       // must restart robot for changes to occur
       
       // when driver holds roight bumper, run PrepareLaunch for 1 sec, then run LaunchNote
@@ -105,7 +105,7 @@ public class RobotContainer {
       driverController.x().whileTrue(new RollerIntake(rollerClaw));
       // shoots with roller when b button is pressed
       driverController.b().whileTrue(new RollerLaunch(rollerClaw));
-    }
+    // }
 
   }
 

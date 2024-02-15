@@ -26,15 +26,18 @@ public class ShootSpinCross extends SequentialCommandGroup {
       new WaitCommand(2),
       new AutoDrive(drivetrain, 3, -0.4),
       new WaitCommand(2),
-      new AutoSpin(drivetrain, 1, 0.4)
+      new AutoSpin(drivetrain, 1.414, 0.4),
+      new WaitCommand(2),
+      new AutoDrive(drivetrain, 2, 0.4)
+
     );
     
-    // TODO: change stopTimes before next time
+    // DONE: change stopTimes before next time
 
-    // TODO: LaunchGroup() depends on an interrupt and interrupts don't naturally happen during auton, 
+    // DONE: LaunchGroup() depends on an interrupt and interrupts don't naturally happen during auton, 
     //       so the launcher will just continue running.  You should stop it from running before running your next commands.
 
-    // TODO: Spinning based on time is unpredictable, so if you do it before crossing the line you may not be pointing in
+    // DONE: Spinning based on time is unpredictable, so if you do it before crossing the line you may not be pointing in
     //       your intended direction.  Consider spinning after driving across the line.  (Remember you can drive backwards.)
   }
 }
