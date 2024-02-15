@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.LaunchGroup;
 import frc.robot.commands.Paths.AutoDrive;
-import frc.robot.commands.Paths.AutoSpin;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Launcher;
 
@@ -24,12 +23,11 @@ public class ShootSpinCross extends SequentialCommandGroup {
     addCommands(
       new LaunchGroup(launcher),
       new WaitCommand(2),
-      new AutoDrive(drivetrain, 3, -0.4),
+      new AutoDrive(drivetrain, 3, -0.4, 0),
       new WaitCommand(2),
-      new AutoSpin(drivetrain, 1.414, 0.4),
+      new AutoDrive(drivetrain, 1.414, 0, 0.4),
       new WaitCommand(2),
-      new AutoDrive(drivetrain, 2, 0.4)
-
+      new AutoDrive(drivetrain, 2, 0.4, 0)
     );
     
     // DONE: change stopTimes before next time

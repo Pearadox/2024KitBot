@@ -18,11 +18,12 @@ public class AutoDrive extends Command {
   private long startTime;
   private double stopTime;
   private double velocity;
+  private double rotVelocity;
 
   // intiializes timeSinceStart 
 
   /** Creates a new CrossTheLine. */
-  public AutoDrive(Drivetrain drivetrain, double stopTime, double velocity) {
+  public AutoDrive(Drivetrain drivetrain, double stopTime, double velocity, double rotVelocity) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drivetrain = drivetrain;
     addRequirements(drivetrain);
@@ -41,7 +42,7 @@ public class AutoDrive extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    drivetrain.arcadeDrive(velocity, 0.0);    
+    drivetrain.arcadeDrive(velocity, rotVelocity);    
     SmartDashboard.putNumber("Encoder", drivetrain.getDistance());
   }
   

@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.LaunchGroup;
 import frc.robot.commands.Paths.AutoDrive;
-import frc.robot.commands.Paths.AutoSpin;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Launcher;
 
@@ -26,7 +25,7 @@ public class AutoCrossAndSpin extends SequentialCommandGroup {
     
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    addCommands(new AutoDrive(drivetrain, 3, 0.4), new WaitCommand(1), 
-      new AutoSpin(drivetrain, 2, -0.4), new WaitCommand(2), new LaunchGroup(launcher));
+    addCommands(new AutoDrive(drivetrain, 3, 0.4, 0), new WaitCommand(1), 
+      new AutoDrive(drivetrain, 2, 0, -0.4), new WaitCommand(2), new LaunchGroup(launcher));
   }
 }
