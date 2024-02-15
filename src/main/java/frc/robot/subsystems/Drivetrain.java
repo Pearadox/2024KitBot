@@ -14,13 +14,20 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import frc.lib.drivers.PearadoxSparkMax;
 import frc.robot.Constants.DrivetrainConstants;
+import frc.robot.Constants.MechanicalConstants;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.math.proto.Kinematics;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SerialPort.Port;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive.WheelSpeeds;
 // import edu.wpi.first.wpilibj.drive.RobotDriveBase.MotorType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -66,13 +73,24 @@ public class Drivetrain extends SubsystemBase {
     leftBackEncoder.setPositionConversionFactor(DrivetrainConstants.encoderConversionFactor);
     rightBackEncoder.setPositionConversionFactor(DrivetrainConstants.encoderConversionFactor);
 
+    //TODO::
     // AutoBuilder.configureRamsete(
     //   this::getPose, // Robot pose supplier 
     //   this::resetOdometry, // resets odometry 
-    //   this::getCurrentSpeeds(),
-    //   this::arcadeDrive(0, 0),
+    //   this::getRobotRelativeSpeeds,
+    //   this::arcadeDrive,
     //   new ReplanningConfig(false, false)
-    //   );
+    //   () -> {
+    //           // Boolean supplier that controls when the path will be mirrored for the red alliance
+    //           // This will flip the path being followed to the red side of the field.
+    //           // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+    //           var alliance = DriverStation.getAlliance();
+    //           if (alliance.isPresent()) {
+    //             return alliance.get() == DriverStation.Alliance.Red;
+    //           }
+    //           return false;
+  
 
   }
 
@@ -87,6 +105,15 @@ public class Drivetrain extends SubsystemBase {
   public Pose2d getPose(){
     return odometry.getPoseMeters();
   }
+
+public ChassisSpeeds getRobotRelativeSpeeds() {
+  DifferentialDriveWheelSpeeds wheelSpeeds = new DifferentialDriveWheelSpeeds(leftFrontEncoder.getVelocity() / 60,
+     - rightFrontEncoder.getVelocity() / 60);
+     DifferentialDriveKinematics kinematics =
+    new DifferentialDriveKinematics(Units.inchesToMeters(MechanicalConstants.trackWidth));
+     return kinematics.toChassisSpeeds(wheelSpeeds);
+
+}
 
   public DifferentialDriveWheelSpeeds getCurrentSpeeds() {
     return new DifferentialDriveWheelSpeeds(leftFrontEncoder.getVelocity() / 60,

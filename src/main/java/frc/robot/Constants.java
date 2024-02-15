@@ -70,4 +70,9 @@ public final class Constants {
   public static class AutonConstants {
     
   }
+
+  public static final class MechanicalConstants {
+    public static final double trackWidth = 22.0;
+
+  }
 }
