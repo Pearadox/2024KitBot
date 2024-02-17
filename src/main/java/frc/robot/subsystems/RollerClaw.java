@@ -19,7 +19,7 @@ public class RollerClaw extends SubsystemBase {
 
     rollerClaw.configFactoryDefault();
 
-    rollerClaw.setInverted(false);
+    rollerClaw.setInverted(true); // now mounted on left
 
     rollerClaw.setNeutralMode(NeutralMode.Brake);
   }

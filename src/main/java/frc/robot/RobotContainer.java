@@ -11,6 +11,9 @@ import frc.robot.commands.Autos.AutoCrossAndSpin;
 import frc.robot.commands.Autos.ShootSpinCross;
 import frc.robot.commands.Paths.AutoDrive;
 import frc.robot.subsystems.*;
+
+import com.pathplanner.lib.commands.PathPlannerAuto;
+
 // import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -48,8 +51,9 @@ public class RobotContainer {
     SmartDashboard.putData("Auton", chooser);
     chooser.setDefaultOption("AutoSpin", new AutoDrive(drivetrain, 2, 0, -0.4));
     chooser.addOption("Auto Cross And Spin", new AutoCrossAndSpin(drivetrain, launcher));
-    chooser.addOption("Launch Group", new LaunchGroup(launcher));    
     chooser.addOption("Auto Shoot Spin Cross", new ShootSpinCross(drivetrain, launcher));
+    chooser.addOption("Launch Group", new LaunchGroup(launcher));    
+    chooser.addOption("auto 1 (path planner)", new PathPlannerAuto("auto1"));    
     
     //SmartDashboard.putData("Number of Controllers", controllerChoose);
     //controllerChoose.setDefaultOption("Driver + Operator", true);

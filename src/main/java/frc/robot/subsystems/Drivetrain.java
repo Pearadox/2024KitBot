@@ -22,12 +22,12 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
-import edu.wpi.first.math.proto.Kinematics;
+// import edu.wpi.first.math.proto.Kinematics;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SerialPort.Port;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive.WheelSpeeds;
+// import edu.wpi.first.wpilibj.drive.DifferentialDrive.WheelSpeeds;
 // import edu.wpi.first.wpilibj.drive.RobotDriveBase.MotorType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -45,6 +45,7 @@ public class Drivetrain extends SubsystemBase {
     MotorType.kBrushless, PearadoxSparkMax.IdleMode.kBrake, DrivetrainConstants.limit, false, rightFront, 0);
   
   private DifferentialDriveOdometry odometry;
+  private DifferentialDriveKinematics kinematics;
   private AHRS gyro = new AHRS(Port.kMXP);
 
   private final RelativeEncoder leftFrontEncoder = leftFront.getEncoder();
@@ -73,29 +74,37 @@ public class Drivetrain extends SubsystemBase {
     leftBackEncoder.setPositionConversionFactor(DrivetrainConstants.encoderConversionFactor);
     rightBackEncoder.setPositionConversionFactor(DrivetrainConstants.encoderConversionFactor);
 
-    //TODO::
-    // AutoBuilder.configureRamsete(
-    //   this::getPose, // Robot pose supplier 
-    //   this::resetOdometry, // resets odometry 
-    //   this::getRobotRelativeSpeeds,
-    //   this::arcadeDrive,
-    //   new ReplanningConfig(false, false)
-    //   () -> {
-    //           // Boolean supplier that controls when the path will be mirrored for the red alliance
-    //           // This will flip the path being followed to the red side of the field.
-    //           // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+    AutoBuilder.configureRamsete(
+            this::getPose, // Robot pose supplier
+            this::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
+            this::getRobotRelativeSpeeds, // Current ChassisSpeeds supplier
+            this::drive, // Method that will drive the robot given ChassisSpeeds
+            new ReplanningConfig(), // Default path replanning config. See the API for the options here
+            () -> {
+              // Boolean supplier that controls when the path will be mirrored for the red alliance
+              // This will flip the path being followed to the red side of the field.
+              // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
 
-    //           var alliance = DriverStation.getAlliance();
-    //           if (alliance.isPresent()) {
-    //             return alliance.get() == DriverStation.Alliance.Red;
-    //           }
-    //           return false;
+              var alliance = DriverStation.getAlliance();
+              if (alliance.isPresent()) {
+                return alliance.get() == DriverStation.Alliance.Red;
+              }
+              return false;
+            },
+            this // Reference to this subsystem to set requirements
+    );
+
   
 
   }
 
   public void arcadeDrive(double throttle, double twist) {
     m_drivetrain.arcadeDrive(throttle, twist);
+  }
+
+  public void drive(ChassisSpeeds chassisSpeeds) {
+    DifferentialDriveWheelSpeeds speeds = kinematics.toWheelSpeeds(chassisSpeeds);
+    m_drivetrain.tankDrive(speeds.leftMetersPerSecond, speeds.rightMetersPerSecond);
   }
 
   public RelativeEncoder getEncoder() {
@@ -107,12 +116,10 @@ public class Drivetrain extends SubsystemBase {
   }
 
 public ChassisSpeeds getRobotRelativeSpeeds() {
-  DifferentialDriveWheelSpeeds wheelSpeeds = new DifferentialDriveWheelSpeeds(leftFrontEncoder.getVelocity() / 60,
-     - rightFrontEncoder.getVelocity() / 60);
-     DifferentialDriveKinematics kinematics =
-    new DifferentialDriveKinematics(Units.inchesToMeters(MechanicalConstants.trackWidth));
-     return kinematics.toChassisSpeeds(wheelSpeeds);
-
+  DifferentialDriveWheelSpeeds wheelSpeeds = new DifferentialDriveWheelSpeeds(
+    leftFrontEncoder.getVelocity() / 60, - rightFrontEncoder.getVelocity() / 60);
+  kinematics = new DifferentialDriveKinematics(Units.inchesToMeters(MechanicalConstants.trackWidth));
+  return kinematics.toChassisSpeeds(wheelSpeeds);
 }
 
   public DifferentialDriveWheelSpeeds getCurrentSpeeds() {
@@ -123,8 +130,8 @@ public ChassisSpeeds getRobotRelativeSpeeds() {
   public void resetOdometry(Pose2d pose){
     resetEncoders();
     odometry.resetPosition(Rotation2d.fromDegrees(gyro.getAngle()), 
-    leftFrontEncoder.getPosition(), 
-    -rightFrontEncoder.getPosition(), pose);
+      leftFrontEncoder.getPosition(), 
+      -rightFrontEncoder.getPosition(), pose);
   }
 
   @Override

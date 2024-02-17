@@ -9,6 +9,8 @@ import static frc.robot.Constants.LauncherConstants;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
+
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Launcher extends SubsystemBase {
@@ -53,5 +55,8 @@ public class Launcher extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    SmartDashboard.putNumber("launch wheel voltage", m_launchWheel.getMotorOutputVoltage());
+    //SmartDashboard.putNumber("launch wheel active trajectory velocity", m_launchWheel.getActiveTrajectoryVelocity());
+    //SmartDashboard.putNumber("launch wheel temperature", m_launchWheel.getTemperature());
   }
 }
