@@ -29,6 +29,7 @@ public class AutoDrive extends Command {
     addRequirements(drivetrain);
     this.stopTime = stopTime * 1000;
     this.velocity = velocity;
+    this.rotVelocity = rotVelocity;
   }
 
   // Called when the command is initially scheduled.

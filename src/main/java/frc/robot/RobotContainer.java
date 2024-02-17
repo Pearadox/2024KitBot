@@ -49,7 +49,7 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(new Drive(drivetrain, driverController));
     
     SmartDashboard.putData("Auton", chooser);
-    chooser.setDefaultOption("AutoSpin", new AutoDrive(drivetrain, 2, 0, -0.4));
+    chooser.setDefaultOption("Auto Spin", new AutoDrive(drivetrain, 2, 0, -0.4));
     chooser.addOption("Auto Cross And Spin", new AutoCrossAndSpin(drivetrain, launcher));
     chooser.addOption("Auto Shoot Spin Cross", new ShootSpinCross(drivetrain, launcher));
     chooser.addOption("Launch Group", new LaunchGroup(launcher));    

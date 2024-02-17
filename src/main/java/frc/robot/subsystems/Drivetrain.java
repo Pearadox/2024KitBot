@@ -74,6 +74,7 @@ public class Drivetrain extends SubsystemBase {
     leftBackEncoder.setPositionConversionFactor(DrivetrainConstants.encoderConversionFactor);
     rightBackEncoder.setPositionConversionFactor(DrivetrainConstants.encoderConversionFactor);
 
+    // docs: https://pathplanner.dev/pplib-build-an-auto.html#create-a-sendablechooser-with-all-autos-in-project
     AutoBuilder.configureRamsete(
             this::getPose, // Robot pose supplier
             this::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
@@ -93,9 +94,6 @@ public class Drivetrain extends SubsystemBase {
             },
             this // Reference to this subsystem to set requirements
     );
-
-  
-
   }
 
   public void arcadeDrive(double throttle, double twist) {
@@ -103,8 +101,13 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void drive(ChassisSpeeds chassisSpeeds) {
+    // TODO: convert meters per second to percentage (-1 to 1) or voltage
+
     DifferentialDriveWheelSpeeds speeds = kinematics.toWheelSpeeds(chassisSpeeds);
-    m_drivetrain.tankDrive(speeds.leftMetersPerSecond, speeds.rightMetersPerSecond);
+    m_drivetrain.tankDrive(
+      speeds.leftMetersPerSecond  / DrivetrainConstants.maxSpeed, 
+      speeds.rightMetersPerSecond / DrivetrainConstants.maxSpeed);
+    // leftFront.setVoltage(speeds.leftMetersPerSecond);
   }
 
   public RelativeEncoder getEncoder() {
@@ -141,6 +144,7 @@ public ChassisSpeeds getRobotRelativeSpeeds() {
     SmartDashboard.putNumber("Right Front", rightFront.getOutputCurrent());
     SmartDashboard.putNumber("Left Back", leftBack.getOutputCurrent());
     SmartDashboard.putNumber("Right Back", rightBack.getOutputCurrent());
+    // SmartDashboard.putNumber("speed", ) TODO: find max speed
   }
 
   public double getDistance() {
