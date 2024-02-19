@@ -55,7 +55,7 @@ public class RobotContainer {
     chooser.addOption("Auto Shoot Spin Cross", new ShootSpinCross(drivetrain, launcher));
     chooser.addOption("Launch Group", new LaunchGroup(launcher));    
     chooser.addOption("auto 1 (path planner)", new PathPlannerAuto("auto1"));    
-    chooser.addOption("Drive Distance", new AutoDriveDistance(drivetrain, 1, 0.5, 0));
+    chooser.addOption("Drive Distance", new AutoDriveDistance(drivetrain, 5, 1, 0));
     
     //SmartDashboard.putData("Number of Controllers", controllerChoose);
     //controllerChoose.setDefaultOption("Driver + Operator", true);

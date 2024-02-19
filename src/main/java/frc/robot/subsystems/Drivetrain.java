@@ -25,6 +25,7 @@ import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 // import edu.wpi.first.math.proto.Kinematics;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.SerialPort.Port;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 // import edu.wpi.first.wpilibj.drive.DifferentialDrive.WheelSpeeds;
@@ -145,6 +146,8 @@ public ChassisSpeeds getRobotRelativeSpeeds() {
     SmartDashboard.putNumber("Left Back", leftBack.getOutputCurrent());
     SmartDashboard.putNumber("Right Back", rightBack.getOutputCurrent());
     // SmartDashboard.putNumber("speed", ) TODO: find max speed
+
+    //double sensorPosition = Encoder.get() * DrivetrainConstants.encoderConversionFactor;
   }
 
   public double getDistance() {

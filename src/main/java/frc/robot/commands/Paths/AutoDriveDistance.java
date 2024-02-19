@@ -24,14 +24,15 @@ public class AutoDriveDistance extends Command {
   private double velocity;
   private double rotVelocity;
 
-  // intiializes timeSinceStart 
+  private long time;
+
 
   /** Creates a new CrossTheLine. */
   public AutoDriveDistance(Drivetrain drivetrain, double distance, /*double rotation,*/ double velocity, double rotVelocity) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drivetrain = drivetrain;
     addRequirements(drivetrain);
-    this.distance = distance / DrivetrainConstants.encoderConversionFactor;
+    this.distance = distance;
     //this.rotation = rotation; 
     this.velocity = velocity;
     this.rotVelocity = rotVelocity;
@@ -49,12 +50,16 @@ public class AutoDriveDistance extends Command {
   public void execute() {
     drivetrain.arcadeDrive(velocity, rotVelocity);    
     SmartDashboard.putNumber("Encoder", drivetrain.getDistance());
+    time = System.currentTimeMillis() * 1000;
+    SmartDashboard.putNumber("current Time", time);    
   }
   
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
     drivetrain.arcadeDrive(0.0,0.0);
+    drivetrain.resetEncoders();
+    SmartDashboard.putNumber("finished Time", time);
   }
   
   // Returns true when the command should end.
