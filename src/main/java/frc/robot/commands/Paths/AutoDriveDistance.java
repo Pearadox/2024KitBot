@@ -3,13 +3,12 @@
 // the WPILib BSD license file in the root directory of this project.
 
 
-//TODO: figure out rotation EVERYTHING (degrees, velocity, etc.)
+//TODO: figure out rotation EVERYTHING (degrees, velocity, pid, trajectory, etc.)
 
 package frc.robot.commands.Paths;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.DrivetrainConstants;
 import frc.robot.subsystems.Drivetrain;
 // import edu.wpi.first.wpilibj.Timer;
 // import frc.robot.Constants;
@@ -24,6 +23,7 @@ public class AutoDriveDistance extends Command {
   private double velocity;
   private double rotVelocity;
 
+  private long startTime;
   private long time;
 
 
@@ -43,6 +43,7 @@ public class AutoDriveDistance extends Command {
   public void initialize() {
     // timeSinceStart.restart();
     drivetrain.resetEncoders();
+    startTime = System.currentTimeMillis();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -50,7 +51,7 @@ public class AutoDriveDistance extends Command {
   public void execute() {
     drivetrain.arcadeDrive(velocity, rotVelocity);    
     SmartDashboard.putNumber("Encoder", drivetrain.getDistance());
-    time = System.currentTimeMillis() * 1000;
+    time = System.currentTimeMillis() - startTime;
     SmartDashboard.putNumber("current Time", time);    
   }
   

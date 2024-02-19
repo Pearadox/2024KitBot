@@ -31,9 +31,7 @@ public final class Constants {
     public static final int limit = 45;
 
     public static final double encoderConversionFactor = Units.inchesToMeters(6*Math.PI) / 10.71;
-    public static final double maxSpeed = 1; // TODO: find max speed in m/s
-
-    
+    public static final double maxSpeed = 5 / 1.54; // tested max speed in m/s
   }
   
   public static class LauncherConstants {

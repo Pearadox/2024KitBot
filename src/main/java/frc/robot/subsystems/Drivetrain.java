@@ -4,33 +4,43 @@
 
 package frc.robot.subsystems;
 
+// remove below after sysid characterization
+import static edu.wpi.first.units.MutableMeasure.mutable;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Volts;
+
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.ReplanningConfig;
-
-// import static frc.robot.Constants.*;
-
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import frc.lib.drivers.PearadoxSparkMax;
 import frc.robot.Constants.DrivetrainConstants;
 import frc.robot.Constants.MechanicalConstants;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
-// import edu.wpi.first.math.proto.Kinematics;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.SerialPort.Port;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-// import edu.wpi.first.wpilibj.drive.DifferentialDrive.WheelSpeeds;
-// import edu.wpi.first.wpilibj.drive.RobotDriveBase.MotorType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+// remove below after sysid characterization
+import edu.wpi.first.units.Distance;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.MutableMeasure;
+import edu.wpi.first.units.Velocity;
+import edu.wpi.first.units.Voltage;
+import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 
 public class Drivetrain extends SubsystemBase {
   private final PearadoxSparkMax leftFront = new PearadoxSparkMax(DrivetrainConstants.leftFrontID, 
@@ -54,12 +64,20 @@ public class Drivetrain extends SubsystemBase {
   private final RelativeEncoder leftBackEncoder = leftBack.getEncoder();
   private final RelativeEncoder rightBackEncoder = rightBack.getEncoder();
 
+  // remove below after sysid characterization
+  // Mutable holder for unit-safe voltage values, persisted to avoid reallocation.
+  private final MutableMeasure<Voltage> appliedVoltage = mutable(Volts.of(0));
+  // Mutable holder for unit-safe linear distance values, persisted to avoid reallocation.
+  private final MutableMeasure<Distance> distance = mutable(Meters.of(0));
+  // Mutable holder for unit-safe linear velocity values, persisted to avoid reallocation.
+  private final MutableMeasure<Velocity<Distance>> velocity = mutable(MetersPerSecond.of(0));
+
   /** Creates a new Drivetrain. */
   DifferentialDrive m_drivetrain;
 
   // TODO: Integrate foundational code necessary for trajectory/path following
   //       Helpful references:
-  //       https://docs.wpilib.org/en/stable/docs/software/pathplanning/trajectory-tutorial/index.html
+  //       https://docs.wpilib.org/en/stable/docs/software/pathplanning/trajectory-tutorial/index.html <--
   //       https://github.com/Pearadox/2023Everybot/blob/master/src/main/java/frc/robot/subsystems/DriveTrain.java
   //       https://github.com/Pearadox/2023Everybot/blob/master/src/main/java/frc/robot/Constants.java
 
@@ -76,6 +94,7 @@ public class Drivetrain extends SubsystemBase {
     rightBackEncoder.setPositionConversionFactor(DrivetrainConstants.encoderConversionFactor);
 
     // docs: https://pathplanner.dev/pplib-build-an-auto.html#create-a-sendablechooser-with-all-autos-in-project
+    // TODO: fix below; code crashes when path planner auto is selected & some of the commands are not even run
     AutoBuilder.configureRamsete(
             this::getPose, // Robot pose supplier
             this::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
@@ -88,7 +107,7 @@ public class Drivetrain extends SubsystemBase {
               // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
 
               var alliance = DriverStation.getAlliance();
-              if (alliance.isPresent()) {
+              if (alliance.isPresent()) { // is working
                 return alliance.get() == DriverStation.Alliance.Red;
               }
               return false;
@@ -97,17 +116,76 @@ public class Drivetrain extends SubsystemBase {
     );
   }
 
+// TODO: sysid characterization 
+// https://docs.wpilib.org/en/stable/docs/software/advanced-controls/system-identification/creating-routine.html
+// https://docs.wpilib.org/en/stable/docs/software/pathplanning/trajectory-tutorial/characterizing-drive.html
+
+// TODO: remove below after sysid characterization
+private final SysIdRoutine sysIdRoutine =
+  new SysIdRoutine(
+    // Empty config defaults to 1 volt/second ramp rate and 7 volt step voltage.
+    new SysIdRoutine.Config(),
+    new SysIdRoutine.Mechanism(
+        // Tell SysId how to plumb the driving voltage to the motors.
+        (Measure<Voltage> volts) -> {
+          leftFront.setVoltage(volts.in(Volts));
+          rightFront.setVoltage(volts.in(Volts));
+        },
+        // Tell SysId how to record a frame of data for each motor on the mechanism being
+        // characterized.
+        log -> {
+          // Record a frame for the left motors.  Since these share an encoder, we consider
+              // the entire group to be one motor.
+              log.motor("drive-left")
+                  .voltage(
+                      appliedVoltage.mut_replace(
+                          leftFront.get() * RobotController.getBatteryVoltage(), Volts))
+                  .linearPosition(distance.mut_replace(leftFrontEncoder.getPosition(), Meters))
+                  .linearVelocity(
+                      velocity.mut_replace(leftFrontEncoder.getVelocity(), MetersPerSecond));
+              // Record a frame for the right motors.  Since these share an encoder, we consider
+              // the entire group to be one motor.
+              log.motor("drive-right")
+                  .voltage(
+                      appliedVoltage.mut_replace(
+                          rightFront.get() * RobotController.getBatteryVoltage(), Volts))
+                  .linearPosition(distance.mut_replace(rightFrontEncoder.getPosition(), Meters))
+                  .linearVelocity(
+                      velocity.mut_replace(rightFrontEncoder.getVelocity(), MetersPerSecond));
+        },
+        // Tell SysId to make generated commands require this subsystem, suffix test state in
+        // WPILog with this subsystem's name ("drive")
+        this));
+
+/**
+   * Returns a command that will execute a quasistatic test in the given direction.
+   *
+   * @param direction The direction (forward or reverse) to run the test in
+   */
+  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+    return sysIdRoutine.quasistatic(direction);
+  }
+
+  /**
+   * Returns a command that will execute a dynamic test in the given direction.
+   *
+   * @param direction The direction (forward or reverse) to run the test in
+   */
+  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+    return sysIdRoutine.dynamic(direction);
+  }
+
   public void arcadeDrive(double throttle, double twist) {
     m_drivetrain.arcadeDrive(throttle, twist);
   }
 
-  public void drive(ChassisSpeeds chassisSpeeds) {
-    // TODO: convert meters per second to percentage (-1 to 1) or voltage
-
+  public void drive(ChassisSpeeds chassisSpeeds) { 
+    // done: convert meters per second to percentage (-1 to 1) or voltage
+    SmartDashboard.putString("status1", "driving"); //NO RETURN
     DifferentialDriveWheelSpeeds speeds = kinematics.toWheelSpeeds(chassisSpeeds);
-    m_drivetrain.tankDrive(
-      speeds.leftMetersPerSecond  / DrivetrainConstants.maxSpeed, 
-      speeds.rightMetersPerSecond / DrivetrainConstants.maxSpeed);
+    double left = speeds.leftMetersPerSecond  / DrivetrainConstants.maxSpeed;
+    double right = speeds.rightMetersPerSecond / DrivetrainConstants.maxSpeed;
+    m_drivetrain.tankDrive((Math.abs(left) <= 1) ? left : 0, (Math.abs(right) <= 1) ? right : 0);
     // leftFront.setVoltage(speeds.leftMetersPerSecond);
   }
 
@@ -115,23 +193,26 @@ public class Drivetrain extends SubsystemBase {
     return leftFront.getEncoder();
   }
 
-  public Pose2d getPose(){
+  public Pose2d getPose(){ 
+    SmartDashboard.putString("status2", "got pose"); // NOT WORKING
     return odometry.getPoseMeters();
   }
 
-public ChassisSpeeds getRobotRelativeSpeeds() {
+public ChassisSpeeds getRobotRelativeSpeeds() { 
+  SmartDashboard.putString("status3", "got robot relative speeds"); // NOT WORKING
   DifferentialDriveWheelSpeeds wheelSpeeds = new DifferentialDriveWheelSpeeds(
     leftFrontEncoder.getVelocity() / 60, - rightFrontEncoder.getVelocity() / 60);
-  kinematics = new DifferentialDriveKinematics(Units.inchesToMeters(MechanicalConstants.trackWidth));
-  return kinematics.toChassisSpeeds(wheelSpeeds);
-}
-
+    kinematics = new DifferentialDriveKinematics(Units.inchesToMeters(MechanicalConstants.trackWidth));
+    return kinematics.toChassisSpeeds(wheelSpeeds);
+  }
+  
   public DifferentialDriveWheelSpeeds getCurrentSpeeds() {
     return new DifferentialDriveWheelSpeeds(leftFrontEncoder.getVelocity() / 60,
      - rightFrontEncoder.getVelocity() / 60);
-  }
-
-  public void resetOdometry(Pose2d pose){
+    }
+    
+    public void resetOdometry(Pose2d pose){
+    SmartDashboard.putString("status4", "reset odometry"); // IS WORKING
     resetEncoders();
     odometry.resetPosition(Rotation2d.fromDegrees(gyro.getAngle()), 
       leftFrontEncoder.getPosition(), 
@@ -145,7 +226,6 @@ public ChassisSpeeds getRobotRelativeSpeeds() {
     SmartDashboard.putNumber("Right Front", rightFront.getOutputCurrent());
     SmartDashboard.putNumber("Left Back", leftBack.getOutputCurrent());
     SmartDashboard.putNumber("Right Back", rightBack.getOutputCurrent());
-    // SmartDashboard.putNumber("speed", ) TODO: find max speed
 
     //double sensorPosition = Encoder.get() * DrivetrainConstants.encoderConversionFactor;
   }

@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -96,23 +97,61 @@ public class RobotContainer {
     // } else { 
       // must restart robot for changes to occur
       
-      // when driver holds roight bumper, run PrepareLaunch for 1 sec, then run LaunchNote
-      driverController.rightBumper().whileTrue(new LaunchGroup(launcher));
+      // TODO: uncomment after sysid characterization
+      // // when driver holds roight bumper, run PrepareLaunch for 1 sec, then run LaunchNote
+      // driverController.rightBumper().whileTrue(new LaunchGroup(launcher));
   
-      // intakes when driver holds left bumper
-      driverController.leftBumper().whileTrue(new Intake(launcher));
+      // // intakes when driver holds left bumper
+      // driverController.leftBumper().whileTrue(new Intake(launcher));
       
-      // climbs up when driver holds dpad up
-      driverController.povUp().whileTrue(new ClimbUp(climber));
-      // climbs down when driver holds dpad down
-      driverController.povDown().whileTrue(new ClimbDown(climber));
+      // // climbs up when driver holds dpad up
+      // driverController.povUp().whileTrue(new ClimbUp(climber));
+      // // climbs down when driver holds dpad down
+      // driverController.povDown().whileTrue(new ClimbDown(climber));
   
-      // intakes with roller when x button is pressed
-      driverController.x().whileTrue(new RollerIntake(rollerClaw));
-      // shoots with roller when b button is pressed
-      driverController.b().whileTrue(new RollerLaunch(rollerClaw));
+      // // intakes with roller when x button is pressed
+      // driverController.x().whileTrue(new RollerIntake(rollerClaw));
+      // // shoots with roller when b button is pressed
+      // driverController.b().whileTrue(new RollerLaunch(rollerClaw));
     // }
 
+    // Bind full set of SysId routine tests to buttons; a complete routine should run each of these
+    // once.
+    // Using bumpers as a modifier and combining it with the buttons so that we can have both sets
+    // of bindings at once
+    driverController
+        .a()
+        .and(driverController.rightBumper())
+        .whileTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    driverController
+        .b()
+        .and(driverController.rightBumper())
+        .whileTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    driverController
+        .x()
+        .and(driverController.rightBumper())
+        .whileTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    driverController
+        .y()
+        .and(driverController.rightBumper())
+        .whileTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+    driverController
+        .a()
+        .and(driverController.leftBumper())
+        .whileTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    driverController
+        .b()
+        .and(driverController.leftBumper())
+        .whileTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    driverController
+        .x()
+        .and(driverController.leftBumper())
+        .whileTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    driverController
+        .y()
+        .and(driverController.leftBumper())
+        .whileTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kReverse));
   }
 
   /**
