@@ -29,7 +29,6 @@ import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.SerialPort.Port;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -40,8 +39,6 @@ import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.MutableMeasure;
 import edu.wpi.first.units.Velocity;
 import edu.wpi.first.units.Voltage;
-import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
-
 public class Drivetrain extends SubsystemBase {
   private final PearadoxSparkMax leftFront = new PearadoxSparkMax(DrivetrainConstants.leftFrontID, 
     MotorType.kBrushless, PearadoxSparkMax.IdleMode.kBrake, DrivetrainConstants.limit, true);
@@ -86,12 +83,15 @@ public class Drivetrain extends SubsystemBase {
     // rightBack.follow(rightFront);
 
     m_drivetrain = new DifferentialDrive(leftFront, rightFront);
+
+    m_drivetrain.setSafetyEnabled(false); // need this for sysid characterization
     
     // 6 inch wheel, 10.71:1 gear ratio
     leftFrontEncoder.setPositionConversionFactor(DrivetrainConstants.encoderConversionFactor);
     rightFrontEncoder.setPositionConversionFactor(DrivetrainConstants.encoderConversionFactor);
     leftBackEncoder.setPositionConversionFactor(DrivetrainConstants.encoderConversionFactor);
     rightBackEncoder.setPositionConversionFactor(DrivetrainConstants.encoderConversionFactor);
+
 
     // docs: https://pathplanner.dev/pplib-build-an-auto.html#create-a-sendablechooser-with-all-autos-in-project
     // TODO: fix below; code crashes when path planner auto is selected & some of the commands are not even run
@@ -139,19 +139,19 @@ private final SysIdRoutine sysIdRoutine =
               log.motor("drive-left")
                   .voltage(
                       appliedVoltage.mut_replace(
-                          leftFront.get() * RobotController.getBatteryVoltage(), Volts))
+                          leftFront.getAppliedOutput() * leftFront.getBusVoltage(), Volts))
                   .linearPosition(distance.mut_replace(leftFrontEncoder.getPosition(), Meters))
                   .linearVelocity(
-                      velocity.mut_replace(leftFrontEncoder.getVelocity(), MetersPerSecond));
+                      velocity.mut_replace(leftFrontEncoder.getVelocity() / 60.0, MetersPerSecond));
               // Record a frame for the right motors.  Since these share an encoder, we consider
               // the entire group to be one motor.
               log.motor("drive-right")
                   .voltage(
                       appliedVoltage.mut_replace(
-                          rightFront.get() * RobotController.getBatteryVoltage(), Volts))
+                          rightFront.getAppliedOutput() * rightFront.getBusVoltage(), Volts))
                   .linearPosition(distance.mut_replace(rightFrontEncoder.getPosition(), Meters))
                   .linearVelocity(
-                      velocity.mut_replace(rightFrontEncoder.getVelocity(), MetersPerSecond));
+                      velocity.mut_replace(rightFrontEncoder.getVelocity() / 60.0, MetersPerSecond));
         },
         // Tell SysId to make generated commands require this subsystem, suffix test state in
         // WPILog with this subsystem's name ("drive")
