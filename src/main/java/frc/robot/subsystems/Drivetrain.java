@@ -67,7 +67,8 @@ public class Drivetrain extends SubsystemBase {
     rightBackEncoder.setVelocityConversionFactor(DrivetrainConstants.encoderConversionFactor / 60.0);
 
     odometry = new DifferentialDriveOdometry(gyro.getRotation2d(), 
-      leftFrontEncoder.getPosition(), rightFrontEncoder.getPosition());
+      0.0, 0.0, 
+      new Pose2d(0.0, 0.0, new Rotation2d(0.0)));
 
     // docs: https://pathplanner.dev/pplib-build-an-auto.html#create-a-sendablechooser-with-all-autos-in-project
     // TODO: fix below; code crashes when path planner auto is selected & some of the commands are not even run
@@ -98,56 +99,46 @@ public class Drivetrain extends SubsystemBase {
   // for PathPlanner
   public void chassisSpeedDrive(ChassisSpeeds chassisSpeeds) { 
     // done: convert meters per second to percentage (-1 to 1) or voltage
-    System.out.println("called drive method");
-    SmartDashboard.putString("status1", "driving"); //NO RETURN
     DifferentialDriveWheelSpeeds speeds = DrivetrainConstants.kinematics.toWheelSpeeds(chassisSpeeds);
     double left = speeds.leftMetersPerSecond  / DrivetrainConstants.maxSpeed;
     double right = speeds.rightMetersPerSecond / DrivetrainConstants.maxSpeed;
-    m_drivetrain.tankDrive((Math.abs(left) <= 1) ? left : 0, (Math.abs(right) <= 1) ? right : 0);
-    // leftFront.setVoltage(speeds.leftMetersPerSecond);
+    m_drivetrain.tankDrive(left, right);
   }
 
   public void driveVolts(double leftVolts, double rightVolts) {
-    System.out.println("called drive volts");
     leftFront.setVoltage(leftVolts);
     rightFront.setVoltage(rightVolts);
     m_drivetrain.feed(); // motor safety thing
   }
 
   // for PathPlanner
-  public Pose2d getPose(){ 
-    System.out.println("called get pose method");
-    SmartDashboard.putString("status2", "got pose"); // NOT WORKING
+  public Pose2d getPose() {
     return odometry.getPoseMeters();
-    }
+  }
 
   // for PathPlanner
   public ChassisSpeeds getRobotRelativeSpeeds() { 
-    System.out.println("called get robot relative speeds method");
-    SmartDashboard.putString("status3", "got robot relative speeds"); // NOT WORKING
     DifferentialDriveWheelSpeeds wheelSpeeds = new DifferentialDriveWheelSpeeds(
-      leftFrontEncoder.getVelocity(), - rightFrontEncoder.getVelocity());
+      leftFrontEncoder.getVelocity(), rightFrontEncoder.getVelocity());
       return DrivetrainConstants.kinematics.toChassisSpeeds(wheelSpeeds);
-    }
+  }
     
   // for PathPlanner
   public DifferentialDriveWheelSpeeds getCurrentSpeeds() {
-    System.out.println("called get current speeds methods");
     return new DifferentialDriveWheelSpeeds(leftFrontEncoder.getVelocity(),
-      - rightFrontEncoder.getVelocity());
-    }
+      rightFrontEncoder.getVelocity());
+  }
     
   // for PathPlanner
   public void resetOdometry(Pose2d pose){
-    System.out.println("called reset odometry method");
-    SmartDashboard.putString("status4", "reset odometry"); // IS WORKING
     resetEncoders();
     odometry.resetPosition(Rotation2d.fromDegrees(gyro.getAngle()), 
-      leftFrontEncoder.getPosition(), -rightFrontEncoder.getPosition(), pose);
-    }
+      leftFrontEncoder.getPosition(), rightFrontEncoder.getPosition(), pose);
+    m_drivetrain.feed();
+  }
     
   public RelativeEncoder getEncoder() {
-  return leftFront.getEncoder();
+    return leftFront.getEncoder();
   }
   
   public double getDistance() {
@@ -156,23 +147,34 @@ public class Drivetrain extends SubsystemBase {
   }    
   
   public void resetEncoders() {
-  leftFrontEncoder.setPosition(0);
-  rightFrontEncoder.setPosition(0);
-  leftBackEncoder.setPosition(0);
-  rightBackEncoder.setPosition(0);
+    leftFrontEncoder.setPosition(0);
+    rightFrontEncoder.setPosition(0);
+    leftBackEncoder.setPosition(0);
+    rightBackEncoder.setPosition(0);
   }
   
   public double getHeading() {
-  return gyro.getRotation2d().getDegrees();
+    return gyro.getRotation2d().getDegrees();
+  }
+
+  public void resetGyro() {
+    gyro.reset();
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    SmartDashboard.putNumber("Left Front", leftFront.getOutputCurrent());
-    SmartDashboard.putNumber("Right Front", rightFront.getOutputCurrent());
-    SmartDashboard.putNumber("Left Back", leftBack.getOutputCurrent());
-    SmartDashboard.putNumber("Right Back", rightBack.getOutputCurrent());
+    // SmartDashboard.putNumber("Left Front", leftFront.getOutputCurrent());
+    // SmartDashboard.putNumber("Right Front", rightFront.getOutputCurrent());
+    // SmartDashboard.putNumber("Left Back", leftBack.getOutputCurrent());
+    // SmartDashboard.putNumber("Right Back", rightBack.getOutputCurrent());
+
+    SmartDashboard.putNumber("pose x", getPose().getX());
+    SmartDashboard.putNumber("pose y", getPose().getY());
+    SmartDashboard.putNumber("pose theta", getPose().getRotation().getDegrees());
+
+    System.out.println(getPose().getX() + ", " + 
+      getPose().getY() + ", " + getPose().getRotation().getDegrees());
 
     //double sensorPosition = Encoder.get() * DrivetrainConstants.encoderConversionFactor;
     odometry.update(

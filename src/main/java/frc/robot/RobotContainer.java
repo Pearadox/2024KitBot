@@ -12,6 +12,8 @@ import frc.robot.commands.Paths.AutoDriveDistance;
 import frc.robot.commands.Paths.AutoDriveTime;
 import frc.robot.subsystems.*;
 import com.pathplanner.lib.auto.AutoBuilder;
+
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.*;
@@ -96,6 +98,10 @@ public class RobotContainer {
     driverController.x().whileTrue(new RollerIntake(rollerClaw));
     // shoots with roller when b button is pressed
     driverController.b().whileTrue(new RollerLaunch(rollerClaw));
+
+    driverController.start().onTrue(
+      new RunCommand(() -> drivetrain.resetOdometry(new Pose2d()), drivetrain)
+      .andThen(new RunCommand(() -> drivetrain.resetGyro(), drivetrain)));
   }
 
   /**
