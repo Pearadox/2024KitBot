@@ -34,6 +34,10 @@ public final class Constants {
     public static final double encoderConversionFactor = Units.inchesToMeters(6*Math.PI) / 10.71;
     public static final double maxSpeed = 5 / 1.54; // tested max speed in m/s
 
+    public static final DifferentialDriveKinematics kinematics = 
+      new DifferentialDriveKinematics(Units.inchesToMeters(MechanicalConstants.trackWidth));
+
+    // change below after characterization!
     public static final double kS = 0.2136; // volts
     public static final double kV = 5.05; // volts * seconds / meters
     public static final double kA = 0.66565; // volts * seconds^2 / meters
@@ -42,47 +46,6 @@ public final class Constants {
 
     public static final double kRamseteB = 2;
     public static final double kRamseteZeta = 0.7;
-
-    public static final DifferentialDriveKinematics kinematics = 
-      new DifferentialDriveKinematics(Units.inchesToMeters(MechanicalConstants.trackWidth));
-  }
-  
-  public static class LauncherConstants {
-    public static final int feederID = 5;
-    public static final int launcherID = 6;
-
-    public static final int launcherCurrentLimit = 80; // change?
-    public static final int feederCurrentLimit = 80; // change?
-
-    public static final double launcherSpeed = 1;
-    public static final double launchFeederSpeed = 1;
-    public static final double intakeLauncherSpeed = -1;
-    public static final double intakeFeederSpeed = -0.2;
-    public static final double ampLauncherSpeed = 0.17; // 0.14 w/o polycarb bend, from everybot team testing
-    public static final double ampFeederSpeed = 0.4; 
-
-    public static final double launcherDelay = .5414*2; // pretend there are emojis here
-  }
-  
-  public static class ClimberConstants {
-    public static final int climberID = 9;
-    public static final int climberLimit = 45; // change?
-    
-    public static final double climbUpSpeed = 1;
-    public static final double climbDownSpeed = -1;
-  }
-
-  public static class RollerClawConstants {
-    public static final int rollerClawID = 7;
-    public static final int rollerClawLimit = 45; // CIM, brushed
-    
-    public static final double clawSpeed = 0.5;
-    public static final double clawStallSpeed = 0.1;
-    public static final double clawShootSpeed = -0.5;
-  }
-
-  public static class AutonConstants {
-    
   }
 
   public static final class MechanicalConstants {
