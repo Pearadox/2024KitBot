@@ -1,0 +1,13 @@
+{
+  "NTProvider": {
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/Time Chooser": "String Chooser",
+      "/SmartDashboard/manual or pathplanner": "String Chooser",
+      "/SmartDashboard/path planner chooser": "String Chooser"
+    }
+  },
+  "NetworkTables Info": {
+    "visible": true
+  }
+}

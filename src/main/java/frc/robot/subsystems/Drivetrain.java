@@ -43,14 +43,6 @@ public class Drivetrain extends SubsystemBase {
   private final RelativeEncoder leftBackEncoder = leftBack.getEncoder();
   private final RelativeEncoder rightBackEncoder = rightBack.getEncoder();
 
-  // // remove below after sysid characterization
-  // // Mutable holder for unit-safe voltage values, persisted to avoid reallocation.
-  // private final MutableMeasure<Voltage> appliedVoltage = mutable(Volts.of(0));
-  // // Mutable holder for unit-safe linear distance values, persisted to avoid reallocation.
-  // private final MutableMeasure<Distance> distance = mutable(Meters.of(0));
-  // // Mutable holder for unit-safe linear velocity values, persisted to avoid reallocation.
-  // private final MutableMeasure<Velocity<Distance>> velocity = mutable(MetersPerSecond.of(0));
-
   /** Creates a new Drivetrain. */
   DifferentialDrive m_drivetrain;
 
@@ -62,8 +54,6 @@ public class Drivetrain extends SubsystemBase {
 
   public Drivetrain() {
     m_drivetrain = new DifferentialDrive(leftFront, rightFront);
-
-    // m_drivetrain.setSafetyEnabled(false); // need this for sysid characterization
     
     // 6 inch wheel, 10.71:1 gear ratio
     leftFrontEncoder.setPositionConversionFactor(DrivetrainConstants.encoderConversionFactor);
@@ -76,6 +66,9 @@ public class Drivetrain extends SubsystemBase {
     leftBackEncoder.setVelocityConversionFactor(DrivetrainConstants.encoderConversionFactor / 60.0);
     rightBackEncoder.setVelocityConversionFactor(DrivetrainConstants.encoderConversionFactor / 60.0);
 
+    odometry = new DifferentialDriveOdometry(gyro.getRotation2d(), 
+      leftFrontEncoder.getPosition(), rightFrontEncoder.getPosition());
+
     // docs: https://pathplanner.dev/pplib-build-an-auto.html#create-a-sendablechooser-with-all-autos-in-project
     // TODO: fix below; code crashes when path planner auto is selected & some of the commands are not even run
     
@@ -83,7 +76,7 @@ public class Drivetrain extends SubsystemBase {
       this::getPose, // Robot pose supplier
       this::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
       this::getRobotRelativeSpeeds, // Current ChassisSpeeds supplier
-      this::drive, // Method that will drive the robot given ChassisSpeeds
+      this::chassisSpeedDrive, // Method that will drive the robot given ChassisSpeeds
       new ReplanningConfig(), // Default path replanning config. See the API for the options here
       () -> {
         // boolean that controls which alliance the robot is on
@@ -98,66 +91,12 @@ public class Drivetrain extends SubsystemBase {
     );
   }
 
-
-
-// // TODO: remove below after sysid characterization
-// private final SysIdRoutine sysIdRoutine =
-//   new SysIdRoutine(
-//     // Empty config defaults to 1 volt/second ramp rate and 7 volt step voltage.
-//     new SysIdRoutine.Config(),
-//     new SysIdRoutine.Mechanism(
-//         // Tell SysId how to plumb the driving voltage to the motors.
-//         (Measure<Voltage> volts) -> {
-//           leftFront.setVoltage(volts.in(Volts));
-//           rightFront.setVoltage(volts.in(Volts));
-//         },
-//         // Tell SysId how to record a frame of data for each motor on the mechanism being
-//         // characterized.
-//         log -> {
-//           // Record a frame for the left motors.  Since these share an encoder, we consider
-//               // the entire group to be one motor.
-//               log.motor("drive-left")
-//                   .voltage(
-//                       appliedVoltage.mut_replace(
-//                           leftFront.getAppliedOutput() * leftFront.getBusVoltage(), Volts))
-//                   .linearPosition(distance.mut_replace(leftFrontEncoder.getPosition(), Meters))
-//                   .linearVelocity(velocity.mut_replace(leftFrontEncoder.getVelocity(), MetersPerSecond));
-//               // Record a frame for the right motors.  Since these share an encoder, we consider
-//               // the entire group to be one motor.
-//               log.motor("drive-right")
-//                   .voltage(
-//                       appliedVoltage.mut_replace(
-//                           rightFront.getAppliedOutput() * rightFront.getBusVoltage(), Volts))
-//                   .linearPosition(distance.mut_replace(rightFrontEncoder.getPosition(), Meters))
-//                   .linearVelocity(velocity.mut_replace(rightFrontEncoder.getVelocity(), MetersPerSecond));
-//         },
-//         // Tell SysId to make generated commands require this subsystem, suffix test state in
-//         // WPILog with this subsystem's name ("drive")
-//         this));
-
-  // public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-  //   return sysIdRoutine.quasistatic(direction);
-  // }
-
-  // public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-  //   return sysIdRoutine.dynamic(direction);
-  // }
-
-
-  
-  public void driveVolts(double leftVolts, double rightVolts) {
-    System.out.println("called drive volts");
-    leftFront.setVoltage(leftVolts);
-    rightFront.setVoltage(rightVolts);
-    m_drivetrain.feed(); // motor safety thing
-  }
-  
   public void arcadeDrive(double throttle, double twist) {
     m_drivetrain.arcadeDrive(throttle, twist);
   }
 
   // for PathPlanner
-  public void drive(ChassisSpeeds chassisSpeeds) { 
+  public void chassisSpeedDrive(ChassisSpeeds chassisSpeeds) { 
     // done: convert meters per second to percentage (-1 to 1) or voltage
     System.out.println("called drive method");
     SmartDashboard.putString("status1", "driving"); //NO RETURN
@@ -168,8 +107,11 @@ public class Drivetrain extends SubsystemBase {
     // leftFront.setVoltage(speeds.leftMetersPerSecond);
   }
 
-  public RelativeEncoder getEncoder() {
-    return leftFront.getEncoder();
+  public void driveVolts(double leftVolts, double rightVolts) {
+    System.out.println("called drive volts");
+    leftFront.setVoltage(leftVolts);
+    rightFront.setVoltage(rightVolts);
+    m_drivetrain.feed(); // motor safety thing
   }
 
   // for PathPlanner
@@ -177,31 +119,51 @@ public class Drivetrain extends SubsystemBase {
     System.out.println("called get pose method");
     SmartDashboard.putString("status2", "got pose"); // NOT WORKING
     return odometry.getPoseMeters();
-  }
+    }
 
   // for PathPlanner
-public ChassisSpeeds getRobotRelativeSpeeds() { 
-  System.out.println("called get robot relative speeds method");
-  SmartDashboard.putString("status3", "got robot relative speeds"); // NOT WORKING
-  DifferentialDriveWheelSpeeds wheelSpeeds = new DifferentialDriveWheelSpeeds(
-    leftFrontEncoder.getVelocity(), - rightFrontEncoder.getVelocity());
-    return DrivetrainConstants.kinematics.toChassisSpeeds(wheelSpeeds);
+  public ChassisSpeeds getRobotRelativeSpeeds() { 
+    System.out.println("called get robot relative speeds method");
+    SmartDashboard.putString("status3", "got robot relative speeds"); // NOT WORKING
+    DifferentialDriveWheelSpeeds wheelSpeeds = new DifferentialDriveWheelSpeeds(
+      leftFrontEncoder.getVelocity(), - rightFrontEncoder.getVelocity());
+      return DrivetrainConstants.kinematics.toChassisSpeeds(wheelSpeeds);
+    }
+    
+  // for PathPlanner
+  public DifferentialDriveWheelSpeeds getCurrentSpeeds() {
+    System.out.println("called get current speeds methods");
+    return new DifferentialDriveWheelSpeeds(leftFrontEncoder.getVelocity(),
+      - rightFrontEncoder.getVelocity());
+    }
+    
+  // for PathPlanner
+  public void resetOdometry(Pose2d pose){
+    System.out.println("called reset odometry method");
+    SmartDashboard.putString("status4", "reset odometry"); // IS WORKING
+    resetEncoders();
+    odometry.resetPosition(Rotation2d.fromDegrees(gyro.getAngle()), 
+      leftFrontEncoder.getPosition(), -rightFrontEncoder.getPosition(), pose);
+    }
+    
+  public RelativeEncoder getEncoder() {
+  return leftFront.getEncoder();
   }
   
-  // for PathPlanner
-public DifferentialDriveWheelSpeeds getCurrentSpeeds() {
-  System.out.println("called get current speeds methods");
-  return new DifferentialDriveWheelSpeeds(leftFrontEncoder.getVelocity(),
-    - rightFrontEncoder.getVelocity());
+  public double getDistance() {
+  return (leftFrontEncoder.getPosition() + rightFrontEncoder.getPosition() + 
+    leftBackEncoder.getPosition() + rightBackEncoder.getPosition()) / 4.0;
+  }    
+  
+  public void resetEncoders() {
+  leftFrontEncoder.setPosition(0);
+  rightFrontEncoder.setPosition(0);
+  leftBackEncoder.setPosition(0);
+  rightBackEncoder.setPosition(0);
   }
   
-  // for PathPlanner
-public void resetOdometry(Pose2d pose){
-  System.out.println("called reset odometry method");
-  SmartDashboard.putString("status4", "reset odometry"); // IS WORKING
-  resetEncoders();
-  odometry.resetPosition(Rotation2d.fromDegrees(gyro.getAngle()), 
-    leftFrontEncoder.getPosition(), -rightFrontEncoder.getPosition(), pose);
+  public double getHeading() {
+  return gyro.getRotation2d().getDegrees();
   }
 
   @Override
@@ -215,21 +177,5 @@ public void resetOdometry(Pose2d pose){
     //double sensorPosition = Encoder.get() * DrivetrainConstants.encoderConversionFactor;
     odometry.update(
         gyro.getRotation2d(), leftFrontEncoder.getPosition(), rightFrontEncoder.getPosition());
-  }
-
-  public double getDistance() {
-    return (leftFrontEncoder.getPosition() + rightFrontEncoder.getPosition() + 
-      leftBackEncoder.getPosition() + rightBackEncoder.getPosition()) / 4.0;
-  }
-
-  public double getHeading() {
-    return gyro.getRotation2d().getDegrees();
-  }
-
-  public void resetEncoders() {
-    leftFrontEncoder.setPosition(0);
-    rightFrontEncoder.setPosition(0);
-    leftBackEncoder.setPosition(0);
-    rightBackEncoder.setPosition(0);
   }
 }
