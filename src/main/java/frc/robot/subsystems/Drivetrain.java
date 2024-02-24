@@ -4,12 +4,6 @@
 
 package frc.robot.subsystems;
 
-// remove below after sysid characterization
-import static edu.wpi.first.units.MutableMeasure.mutable;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.Volts;
-
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.ReplanningConfig;
@@ -17,9 +11,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import frc.lib.drivers.PearadoxSparkMax;
 import frc.robot.Constants.DrivetrainConstants;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -30,12 +22,6 @@ import edu.wpi.first.wpilibj.SerialPort.Port;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-// remove below after sysid characterization
-import edu.wpi.first.units.Distance;
-import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.MutableMeasure;
-import edu.wpi.first.units.Velocity;
-import edu.wpi.first.units.Voltage;
 public class Drivetrain extends SubsystemBase {
   private final PearadoxSparkMax leftFront = new PearadoxSparkMax(DrivetrainConstants.leftFrontID, 
     MotorType.kBrushless, PearadoxSparkMax.IdleMode.kBrake, DrivetrainConstants.limit, true);
@@ -57,13 +43,13 @@ public class Drivetrain extends SubsystemBase {
   private final RelativeEncoder leftBackEncoder = leftBack.getEncoder();
   private final RelativeEncoder rightBackEncoder = rightBack.getEncoder();
 
-  // remove below after sysid characterization
-  // Mutable holder for unit-safe voltage values, persisted to avoid reallocation.
-  private final MutableMeasure<Voltage> appliedVoltage = mutable(Volts.of(0));
-  // Mutable holder for unit-safe linear distance values, persisted to avoid reallocation.
-  private final MutableMeasure<Distance> distance = mutable(Meters.of(0));
-  // Mutable holder for unit-safe linear velocity values, persisted to avoid reallocation.
-  private final MutableMeasure<Velocity<Distance>> velocity = mutable(MetersPerSecond.of(0));
+  // // remove below after sysid characterization
+  // // Mutable holder for unit-safe voltage values, persisted to avoid reallocation.
+  // private final MutableMeasure<Voltage> appliedVoltage = mutable(Volts.of(0));
+  // // Mutable holder for unit-safe linear distance values, persisted to avoid reallocation.
+  // private final MutableMeasure<Distance> distance = mutable(Meters.of(0));
+  // // Mutable holder for unit-safe linear velocity values, persisted to avoid reallocation.
+  // private final MutableMeasure<Velocity<Distance>> velocity = mutable(MetersPerSecond.of(0));
 
   /** Creates a new Drivetrain. */
   DifferentialDrive m_drivetrain;
@@ -92,74 +78,73 @@ public class Drivetrain extends SubsystemBase {
 
     // docs: https://pathplanner.dev/pplib-build-an-auto.html#create-a-sendablechooser-with-all-autos-in-project
     // TODO: fix below; code crashes when path planner auto is selected & some of the commands are not even run
+    
     AutoBuilder.configureRamsete(
-            this::getPose, // Robot pose supplier
-            this::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
-            this::getRobotRelativeSpeeds, // Current ChassisSpeeds supplier
-            this::drive, // Method that will drive the robot given ChassisSpeeds
-            new ReplanningConfig(), // Default path replanning config. See the API for the options here
-            () -> {
-              // Boolean supplier that controls when the path will be mirrored for the red alliance
-              // This will flip the path being followed to the red side of the field.
-              // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-              System.out.println("called replanning config method");
-              var alliance = DriverStation.getAlliance();
-              if (alliance.isPresent()) { // is working
-                return alliance.get() == DriverStation.Alliance.Red;
-              }
-              return false;
-            },
-            this // Reference to this subsystem to set requirements
+      this::getPose, // Robot pose supplier
+      this::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
+      this::getRobotRelativeSpeeds, // Current ChassisSpeeds supplier
+      this::drive, // Method that will drive the robot given ChassisSpeeds
+      new ReplanningConfig(), // Default path replanning config. See the API for the options here
+      () -> {
+        // boolean that controls which alliance the robot is on
+        System.out.println("called replanning config method");
+        var alliance = DriverStation.getAlliance();
+        if (alliance.isPresent()) { // is working
+          return alliance.get() == DriverStation.Alliance.Red;
+        }
+        return false;
+      },
+      this // Reference to this subsystem to set requirements
     );
   }
 
-// TODO: sysid characterization 
-// https://docs.wpilib.org/en/stable/docs/software/advanced-controls/system-identification/creating-routine.html
-// https://docs.wpilib.org/en/stable/docs/software/pathplanning/trajectory-tutorial/characterizing-drive.html
 
-// TODO: remove below after sysid characterization
-private final SysIdRoutine sysIdRoutine =
-  new SysIdRoutine(
-    // Empty config defaults to 1 volt/second ramp rate and 7 volt step voltage.
-    new SysIdRoutine.Config(),
-    new SysIdRoutine.Mechanism(
-        // Tell SysId how to plumb the driving voltage to the motors.
-        (Measure<Voltage> volts) -> {
-          leftFront.setVoltage(volts.in(Volts));
-          rightFront.setVoltage(volts.in(Volts));
-        },
-        // Tell SysId how to record a frame of data for each motor on the mechanism being
-        // characterized.
-        log -> {
-          // Record a frame for the left motors.  Since these share an encoder, we consider
-              // the entire group to be one motor.
-              log.motor("drive-left")
-                  .voltage(
-                      appliedVoltage.mut_replace(
-                          leftFront.getAppliedOutput() * leftFront.getBusVoltage(), Volts))
-                  .linearPosition(distance.mut_replace(leftFrontEncoder.getPosition(), Meters))
-                  .linearVelocity(velocity.mut_replace(leftFrontEncoder.getVelocity(), MetersPerSecond));
-              // Record a frame for the right motors.  Since these share an encoder, we consider
-              // the entire group to be one motor.
-              log.motor("drive-right")
-                  .voltage(
-                      appliedVoltage.mut_replace(
-                          rightFront.getAppliedOutput() * rightFront.getBusVoltage(), Volts))
-                  .linearPosition(distance.mut_replace(rightFrontEncoder.getPosition(), Meters))
-                  .linearVelocity(velocity.mut_replace(rightFrontEncoder.getVelocity(), MetersPerSecond));
-        },
-        // Tell SysId to make generated commands require this subsystem, suffix test state in
-        // WPILog with this subsystem's name ("drive")
-        this));
 
-  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-    return sysIdRoutine.quasistatic(direction);
-  }
+// // TODO: remove below after sysid characterization
+// private final SysIdRoutine sysIdRoutine =
+//   new SysIdRoutine(
+//     // Empty config defaults to 1 volt/second ramp rate and 7 volt step voltage.
+//     new SysIdRoutine.Config(),
+//     new SysIdRoutine.Mechanism(
+//         // Tell SysId how to plumb the driving voltage to the motors.
+//         (Measure<Voltage> volts) -> {
+//           leftFront.setVoltage(volts.in(Volts));
+//           rightFront.setVoltage(volts.in(Volts));
+//         },
+//         // Tell SysId how to record a frame of data for each motor on the mechanism being
+//         // characterized.
+//         log -> {
+//           // Record a frame for the left motors.  Since these share an encoder, we consider
+//               // the entire group to be one motor.
+//               log.motor("drive-left")
+//                   .voltage(
+//                       appliedVoltage.mut_replace(
+//                           leftFront.getAppliedOutput() * leftFront.getBusVoltage(), Volts))
+//                   .linearPosition(distance.mut_replace(leftFrontEncoder.getPosition(), Meters))
+//                   .linearVelocity(velocity.mut_replace(leftFrontEncoder.getVelocity(), MetersPerSecond));
+//               // Record a frame for the right motors.  Since these share an encoder, we consider
+//               // the entire group to be one motor.
+//               log.motor("drive-right")
+//                   .voltage(
+//                       appliedVoltage.mut_replace(
+//                           rightFront.getAppliedOutput() * rightFront.getBusVoltage(), Volts))
+//                   .linearPosition(distance.mut_replace(rightFrontEncoder.getPosition(), Meters))
+//                   .linearVelocity(velocity.mut_replace(rightFrontEncoder.getVelocity(), MetersPerSecond));
+//         },
+//         // Tell SysId to make generated commands require this subsystem, suffix test state in
+//         // WPILog with this subsystem's name ("drive")
+//         this));
 
-  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-    return sysIdRoutine.dynamic(direction);
-  }
+  // public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+  //   return sysIdRoutine.quasistatic(direction);
+  // }
 
+  // public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+  //   return sysIdRoutine.dynamic(direction);
+  // }
+
+
+  
   public void driveVolts(double leftVolts, double rightVolts) {
     System.out.println("called drive volts");
     leftFront.setVoltage(leftVolts);
@@ -171,6 +156,7 @@ private final SysIdRoutine sysIdRoutine =
     m_drivetrain.arcadeDrive(throttle, twist);
   }
 
+  // for PathPlanner
   public void drive(ChassisSpeeds chassisSpeeds) { 
     // done: convert meters per second to percentage (-1 to 1) or voltage
     System.out.println("called drive method");
@@ -186,12 +172,14 @@ private final SysIdRoutine sysIdRoutine =
     return leftFront.getEncoder();
   }
 
+  // for PathPlanner
   public Pose2d getPose(){ 
     System.out.println("called get pose method");
     SmartDashboard.putString("status2", "got pose"); // NOT WORKING
     return odometry.getPoseMeters();
   }
 
+  // for PathPlanner
 public ChassisSpeeds getRobotRelativeSpeeds() { 
   System.out.println("called get robot relative speeds method");
   SmartDashboard.putString("status3", "got robot relative speeds"); // NOT WORKING
@@ -200,18 +188,20 @@ public ChassisSpeeds getRobotRelativeSpeeds() {
     return DrivetrainConstants.kinematics.toChassisSpeeds(wheelSpeeds);
   }
   
-  public DifferentialDriveWheelSpeeds getCurrentSpeeds() {
-    System.out.println("called get current speeds methods");
-    return new DifferentialDriveWheelSpeeds(leftFrontEncoder.getVelocity(),
-     - rightFrontEncoder.getVelocity());
-    }
-    
-    public void resetOdometry(Pose2d pose){
-    System.out.println("called reset odometry method");
-    SmartDashboard.putString("status4", "reset odometry"); // IS WORKING
-    resetEncoders();
-    odometry.resetPosition(Rotation2d.fromDegrees(gyro.getAngle()), 
-      leftFrontEncoder.getPosition(), -rightFrontEncoder.getPosition(), pose);
+  // for PathPlanner
+public DifferentialDriveWheelSpeeds getCurrentSpeeds() {
+  System.out.println("called get current speeds methods");
+  return new DifferentialDriveWheelSpeeds(leftFrontEncoder.getVelocity(),
+    - rightFrontEncoder.getVelocity());
+  }
+  
+  // for PathPlanner
+public void resetOdometry(Pose2d pose){
+  System.out.println("called reset odometry method");
+  SmartDashboard.putString("status4", "reset odometry"); // IS WORKING
+  resetEncoders();
+  odometry.resetPosition(Rotation2d.fromDegrees(gyro.getAngle()), 
+    leftFrontEncoder.getPosition(), -rightFrontEncoder.getPosition(), pose);
   }
 
   @Override
