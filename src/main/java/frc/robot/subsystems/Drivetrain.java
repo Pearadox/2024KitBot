@@ -64,7 +64,7 @@ public class Drivetrain extends SubsystemBase {
     MotorType.kBrushless, PearadoxSparkMax.IdleMode.kBrake, DrivetrainConstants.limit, false, rightFront, 0);
   
   private DifferentialDriveOdometry odometry;
-  private DifferentialDriveKinematics kinematics;
+  private DifferentialDriveKinematics m_kinematics;
   private AHRS gyro = new AHRS(Port.kMXP);
 
   private final RelativeEncoder leftFrontEncoder = leftFront.getEncoder();
@@ -211,7 +211,7 @@ private final SysIdRoutine sysIdRoutine =
               DrivetrainConstants.maxSpeed,
               DrivetrainConstants.kA)
           // Add kinematics to ensure max speed is actually obeyed
-          .setKinematics(kinematics)
+          .setKinematics(m_kinematics)
           // Apply the voltage constraint
           //.addConstraint(autoVoltageConstraint)
           ;
@@ -257,7 +257,7 @@ private final SysIdRoutine sysIdRoutine =
   public void drive(ChassisSpeeds chassisSpeeds) { 
     // done: convert meters per second to percentage (-1 to 1) or voltage
     SmartDashboard.putString("status1", "driving"); //NO RETURN
-    DifferentialDriveWheelSpeeds speeds = kinematics.toWheelSpeeds(chassisSpeeds);
+    DifferentialDriveWheelSpeeds speeds = m_kinematics.toWheelSpeeds(chassisSpeeds);
     double left = speeds.leftMetersPerSecond  / DrivetrainConstants.maxSpeed;
     double right = speeds.rightMetersPerSecond / DrivetrainConstants.maxSpeed;
     m_drivetrain.tankDrive((Math.abs(left) <= 1) ? left : 0, (Math.abs(right) <= 1) ? right : 0);
@@ -277,8 +277,8 @@ public ChassisSpeeds getRobotRelativeSpeeds() {
   SmartDashboard.putString("status3", "got robot relative speeds"); // NOT WORKING
   DifferentialDriveWheelSpeeds wheelSpeeds = new DifferentialDriveWheelSpeeds(
     leftFrontEncoder.getVelocity() / 60, - rightFrontEncoder.getVelocity() / 60);
-    kinematics = new DifferentialDriveKinematics(Units.inchesToMeters(MechanicalConstants.trackWidth));
-    return kinematics.toChassisSpeeds(wheelSpeeds);
+    m_kinematics = new DifferentialDriveKinematics(Units.inchesToMeters(MechanicalConstants.trackWidth));
+    return m_kinematics.toChassisSpeeds(wheelSpeeds);
   }
   
   public DifferentialDriveWheelSpeeds getCurrentSpeeds() {

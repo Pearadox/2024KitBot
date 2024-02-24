@@ -13,6 +13,7 @@ import frc.robot.commands.Paths.AutoDriveDistance;
 import frc.robot.commands.Paths.AutoDriveTime;
 import frc.robot.subsystems.*;
 
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
 // import edu.wpi.first.util.sendable.Sendable;
@@ -38,32 +39,47 @@ public class RobotContainer {
   private final Climber climber = new Climber();
   private final RollerClaw rollerClaw = new RollerClaw();
 
-  private final SendableChooser<Command> chooser = new SendableChooser<Command>();
+
+  //private final SendableChooser<Boolean> chooserChooser = new SendableChooser<Boolean>();
+
+  private final SendableChooser<SendableChooser<Command>> chooserChooser = new SendableChooser<SendableChooser<Command>>();
+
+  private final SendableChooser<Command> manualChooser = new SendableChooser<Command>();  
+  private SendableChooser<Command> pathPlannerChooser;
   //private final SendableChooser<Boolean> controllerChoose = new SendableChooser<Boolean>();
 
   private final CommandXboxController driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
   private final CommandXboxController operatorController =
       new CommandXboxController(OperatorConstants.kOperatorControllerPort);  
+
+  
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {  
     drivetrain.setDefaultCommand(new Drive(drivetrain, driverController));
     
-    SmartDashboard.putData("Auton", chooser);
-    chooser.setDefaultOption("Auto Spin", new AutoDriveTime(drivetrain, 2, 0, -0.4));
-    chooser.addOption("Auto Cross And Spin", new AutoCrossAndSpin(drivetrain, launcher));
-    chooser.addOption("Auto Shoot Spin Cross", new ShootSpinCross(drivetrain, launcher));
-    chooser.addOption("Launch Group", new LaunchGroup(launcher));    
-    chooser.addOption("auto 1 (path planner)", new PathPlannerAuto("auto1"));    
-    chooser.addOption("Drive Distance", new AutoDriveDistance(drivetrain, 5, 1, 0));
+    SmartDashboard.putData("Time Chooser", manualChooser);
+    manualChooser.setDefaultOption("Auto Spin", new AutoDriveTime(drivetrain, 2, 0, -0.4));
+    manualChooser.addOption("Auto Cross And Spin", new AutoCrossAndSpin(drivetrain, launcher));
+    manualChooser.addOption("Auto Shoot Spin Cross", new ShootSpinCross(drivetrain, launcher));
+    manualChooser.addOption("Launch Group", new LaunchGroup(launcher));    
+    //manualChooser.addOption("auto 1 (path planner)", new PathPlannerAuto("auto1"));    
+    manualChooser.addOption("Drive Distance", new AutoDriveDistance(drivetrain, 5, 1, 0));
     
     //SmartDashboard.putData("Number of Controllers", controllerChoose);
     //controllerChoose.setDefaultOption("Driver + Operator", true);
     //controllerChoose.addOption("Driver Only", false);
+
+    SmartDashboard.putData("manual or pathplanner", chooserChooser);
+    chooserChooser.setDefaultOption("manual", manualChooser);
+    chooserChooser.addOption("pathplanner", pathPlannerChooser);
     
     configureBindings();    
-  }
+    
+    pathPlannerChooser = AutoBuilder.buildAutoChooser("auto1");
+    SmartDashboard.putData("path planner chooser", pathPlannerChooser);
+    }
 
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the
@@ -98,60 +114,61 @@ public class RobotContainer {
       // must restart robot for changes to occur
       
       // TODO: uncomment after sysid characterization
-      // // when driver holds roight bumper, run PrepareLaunch for 1 sec, then run LaunchNote
-      // driverController.rightBumper().whileTrue(new LaunchGroup(launcher));
+      // when driver holds roight bumper, run PrepareLaunch for 1 sec, then run LaunchNote
+      driverController.rightBumper().whileTrue(new LaunchGroup(launcher));
   
-      // // intakes when driver holds left bumper
-      // driverController.leftBumper().whileTrue(new Intake(launcher));
+      // intakes when driver holds left bumper
+      driverController.leftBumper().whileTrue(new Intake(launcher));
       
-      // // climbs up when driver holds dpad up
-      // driverController.povUp().whileTrue(new ClimbUp(climber));
-      // // climbs down when driver holds dpad down
-      // driverController.povDown().whileTrue(new ClimbDown(climber));
+      // climbs up when driver holds dpad up
+      driverController.povUp().whileTrue(new ClimbUp(climber));
+      // climbs down when driver holds dpad down
+      driverController.povDown().whileTrue(new ClimbDown(climber));
   
-      // // intakes with roller when x button is pressed
-      // driverController.x().whileTrue(new RollerIntake(rollerClaw));
-      // // shoots with roller when b button is pressed
-      // driverController.b().whileTrue(new RollerLaunch(rollerClaw));
+      // intakes with roller when x button is pressed
+      driverController.x().whileTrue(new RollerIntake(rollerClaw));
+      // shoots with roller when b button is pressed
+      driverController.b().whileTrue(new RollerLaunch(rollerClaw));
     // }
 
     // Bind full set of SysId routine tests to buttons; a complete routine should run each of these
     // once.
     // Using bumpers as a modifier and combining it with the buttons so that we can have both sets
     // of bindings at once
-    driverController
-        .a()
-        .and(driverController.rightBumper())
-        .whileTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    driverController
-        .b()
-        .and(driverController.rightBumper())
-        .whileTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    driverController
-        .x()
-        .and(driverController.rightBumper())
-        .whileTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    driverController
-        .y()
-        .and(driverController.rightBumper())
-        .whileTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
-    driverController
-        .a()
-        .and(driverController.leftBumper())
-        .whileTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    driverController
-        .b()
-        .and(driverController.leftBumper())
-        .whileTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    driverController
-        .x()
-        .and(driverController.leftBumper())
-        .whileTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    driverController
-        .y()
-        .and(driverController.leftBumper())
-        .whileTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    // driverController
+    //     .a()
+    //     .and(driverController.rightBumper())
+    //     .whileTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    // driverController
+    //     .b()
+    //     .and(driverController.rightBumper())
+    //     .whileTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    // driverController
+    //     .x()
+    //     .and(driverController.rightBumper())
+    //     .whileTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    // driverController
+    //     .y()
+    //     .and(driverController.rightBumper())
+    //     .whileTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+    // driverController
+    //     .a()
+    //     .and(driverController.leftBumper())
+    //     .whileTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    // driverController
+    //     .b()
+    //     .and(driverController.leftBumper())
+    //     .whileTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    // driverController
+    //     .x()
+    //     .and(driverController.leftBumper())
+    //     .whileTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    // driverController
+    //     .y()
+    //     .and(driverController.leftBumper())
+    //     .whileTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kReverse));
   }
 
   /**
@@ -161,6 +178,9 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return chooser.getSelected();
+
+    // returns either manualChooser or pathPlannerChooser depending on the value of the chooserChooser
+    return pathPlannerChooser.getSelected();
+
   }
 }
