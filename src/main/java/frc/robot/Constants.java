@@ -32,6 +32,15 @@ public final class Constants {
 
     public static final double encoderConversionFactor = Units.inchesToMeters(6*Math.PI) / 10.71;
     public static final double maxSpeed = 5 / 1.54; // tested max speed in m/s
+
+    public static final double kS = 0.2136; // volts
+    public static final double kV = 5.05; // volts * seconds / meters
+    public static final double kA = 0.66565; // volts * seconds^2 / meters
+
+    public static final double kP = 6.5103; // additional output per m/s of velocity error
+
+    public static final double kRamseteB = 2;
+    public static final double kRamseteZeta = 0.7;
   }
   
   public static class LauncherConstants {
