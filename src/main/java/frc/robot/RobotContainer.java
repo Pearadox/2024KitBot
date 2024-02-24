@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-// import frc.robot.Constants.LauncherConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.*;
 import frc.robot.commands.Autos.AutoCrossAndSpin;
@@ -15,8 +14,6 @@ import frc.robot.subsystems.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
-
-// import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.*;
@@ -40,12 +37,12 @@ public class RobotContainer {
   private final RollerClaw rollerClaw = new RollerClaw();
 
 
-  //private final SendableChooser<Boolean> chooserChooser = new SendableChooser<Boolean>();
+  private final SendableChooser<Boolean> chooserChooser = new SendableChooser<Boolean>();
 
-  private final SendableChooser<SendableChooser<Command>> chooserChooser = new SendableChooser<SendableChooser<Command>>();
+  //private final SendableChooser<SendableChooser<Command>> chooserChooser = new SendableChooser<SendableChooser<Command>>();
 
   private final SendableChooser<Command> manualChooser = new SendableChooser<Command>();  
-  private SendableChooser<Command> pathPlannerChooser;
+  private final SendableChooser<Command> pathPlannerChooser;
   //private final SendableChooser<Boolean> controllerChoose = new SendableChooser<Boolean>();
 
   private final CommandXboxController driverController =
@@ -72,8 +69,8 @@ public class RobotContainer {
     //controllerChoose.addOption("Driver Only", false);
 
     SmartDashboard.putData("manual or pathplanner", chooserChooser);
-    chooserChooser.setDefaultOption("manual", manualChooser);
-    chooserChooser.addOption("pathplanner", pathPlannerChooser);
+    chooserChooser.setDefaultOption("manual", true);
+    chooserChooser.addOption("pathplanner", false);
     
     configureBindings();    
     
@@ -92,7 +89,6 @@ public class RobotContainer {
    */
   public void configureBindings() {
     // DONE: bind all the operator buttons also on the driver controller (no need for conditionals, just duplicate all the bindings)
-
     // if (controllerChoose.getSelected()) {
       // when operator holds roight bumper, run PrepareLaunch for 1 sec, then run LaunchNote
       operatorController.rightBumper().whileTrue(new LaunchGroup(launcher));
@@ -113,7 +109,6 @@ public class RobotContainer {
     // } else { 
       // must restart robot for changes to occur
       
-      // TODO: uncomment after sysid characterization
       // when driver holds roight bumper, run PrepareLaunch for 1 sec, then run LaunchNote
       driverController.rightBumper().whileTrue(new LaunchGroup(launcher));
   
@@ -180,7 +175,6 @@ public class RobotContainer {
     // An example command will be run in autonomous
 
     // returns either manualChooser or pathPlannerChooser depending on the value of the chooserChooser
-    return pathPlannerChooser.getSelected();
-
+    return chooserChooser.getSelected() ? manualChooser.getSelected() : pathPlannerChooser.getSelected();
   }
 }

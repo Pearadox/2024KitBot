@@ -10,8 +10,6 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
-import java.util.List;
-
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.ReplanningConfig;
@@ -21,23 +19,14 @@ import frc.lib.drivers.PearadoxSparkMax;
 import frc.robot.Constants.DrivetrainConstants;
 import frc.robot.Constants.MechanicalConstants;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.RamseteController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
-import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.TrajectoryConfig;
-import edu.wpi.first.math.trajectory.TrajectoryGenerator;
-import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SerialPort.Port;
@@ -64,7 +53,7 @@ public class Drivetrain extends SubsystemBase {
     MotorType.kBrushless, PearadoxSparkMax.IdleMode.kBrake, DrivetrainConstants.limit, false, rightFront, 0);
   
   private DifferentialDriveOdometry odometry;
-  private DifferentialDriveKinematics m_kinematics;
+  private DifferentialDriveKinematics kinematics;
   private AHRS gyro = new AHRS(Port.kMXP);
 
   private final RelativeEncoder leftFrontEncoder = leftFront.getEncoder();
@@ -84,25 +73,26 @@ public class Drivetrain extends SubsystemBase {
   DifferentialDrive m_drivetrain;
 
   // TODO: Integrate foundational code necessary for trajectory/path following
-  //       Helpful references:
-  //       https://docs.wpilib.org/en/stable/docs/software/pathplanning/trajectory-tutorial/index.html <--
-  //       https://github.com/Pearadox/2023Everybot/blob/master/src/main/java/frc/robot/subsystems/DriveTrain.java
-  //       https://github.com/Pearadox/2023Everybot/blob/master/src/main/java/frc/robot/Constants.java
+  // Helpful references:
+  // https://docs.wpilib.org/en/stable/docs/software/pathplanning/trajectory-tutorial/index.html <--
+  // https://github.com/Pearadox/2023Everybot/blob/master/src/main/java/frc/robot/subsystems/DriveTrain.java
+  // https://github.com/Pearadox/2023Everybot/blob/master/src/main/java/frc/robot/Constants.java
 
   public Drivetrain() {
-    // leftBack.follow(leftFront);
-    // rightBack.follow(rightFront);
-
     m_drivetrain = new DifferentialDrive(leftFront, rightFront);
 
-    m_drivetrain.setSafetyEnabled(false); // need this for sysid characterization
+    // m_drivetrain.setSafetyEnabled(false); // need this for sysid characterization
     
     // 6 inch wheel, 10.71:1 gear ratio
-    // leftFrontEncoder.setPositionConversionFactor(DrivetrainConstants.encoderConversionFactor);
-    // rightFrontEncoder.setPositionConversionFactor(DrivetrainConstants.encoderConversionFactor);
-    // leftBackEncoder.setPositionConversionFactor(DrivetrainConstants.encoderConversionFactor);
-    // rightBackEncoder.setPositionConversionFactor(DrivetrainConstants.encoderConversionFactor);
+    leftFrontEncoder.setPositionConversionFactor(DrivetrainConstants.encoderConversionFactor);
+    rightFrontEncoder.setPositionConversionFactor(DrivetrainConstants.encoderConversionFactor);
+    leftBackEncoder.setPositionConversionFactor(DrivetrainConstants.encoderConversionFactor);
+    rightBackEncoder.setPositionConversionFactor(DrivetrainConstants.encoderConversionFactor);
 
+    leftFrontEncoder.setVelocityConversionFactor(DrivetrainConstants.encoderConversionFactor / 60.0);
+    rightFrontEncoder.setVelocityConversionFactor(DrivetrainConstants.encoderConversionFactor / 60.0);
+    leftBackEncoder.setVelocityConversionFactor(DrivetrainConstants.encoderConversionFactor / 60.0);
+    rightBackEncoder.setVelocityConversionFactor(DrivetrainConstants.encoderConversionFactor / 60.0);
 
     // docs: https://pathplanner.dev/pplib-build-an-auto.html#create-a-sendablechooser-with-all-autos-in-project
     // TODO: fix below; code crashes when path planner auto is selected & some of the commands are not even run
@@ -152,10 +142,7 @@ private final SysIdRoutine sysIdRoutine =
                       appliedVoltage.mut_replace(
                           leftFront.getAppliedOutput() * leftFront.getBusVoltage(), Volts))
                   .linearPosition(distance.mut_replace(leftFrontEncoder.getPosition(), Meters))
-                  .linearVelocity(
-                      velocity.mut_replace(
-                        leftFrontEncoder.getVelocity() / 60.0 * DrivetrainConstants.encoderConversionFactor, 
-                        MetersPerSecond));
+                  .linearVelocity(velocity.mut_replace(leftFrontEncoder.getVelocity(), MetersPerSecond));
               // Record a frame for the right motors.  Since these share an encoder, we consider
               // the entire group to be one motor.
               log.motor("drive-right")
@@ -163,10 +150,7 @@ private final SysIdRoutine sysIdRoutine =
                       appliedVoltage.mut_replace(
                           rightFront.getAppliedOutput() * rightFront.getBusVoltage(), Volts))
                   .linearPosition(distance.mut_replace(rightFrontEncoder.getPosition(), Meters))
-                  .linearVelocity(
-                      velocity.mut_replace(
-                        rightFrontEncoder.getVelocity() / 60.0 * DrivetrainConstants.encoderConversionFactor, 
-                        MetersPerSecond));
+                  .linearVelocity(velocity.mut_replace(rightFrontEncoder.getVelocity(), MetersPerSecond));
         },
         // Tell SysId to make generated commands require this subsystem, suffix test state in
         // WPILog with this subsystem's name ("drive")
@@ -206,27 +190,27 @@ private final SysIdRoutine sysIdRoutine =
   //     10);
 
   // Create config for trajectory
-  TrajectoryConfig config =
-      new TrajectoryConfig(
-              DrivetrainConstants.maxSpeed,
-              DrivetrainConstants.kA)
-          // Add kinematics to ensure max speed is actually obeyed
-          .setKinematics(m_kinematics)
-          // Apply the voltage constraint
-          //.addConstraint(autoVoltageConstraint)
-          ;
+  // TrajectoryConfig config =
+  //     new TrajectoryConfig(
+  //             DrivetrainConstants.maxSpeed,
+  //             DrivetrainConstants.kA)
+  //         // Add kinematics to ensure max speed is actually obeyed
+  //         .setKinematics(m_kinematics)
+  //         // Apply the voltage constraint
+  //         //.addConstraint(autoVoltageConstraint)
+  //         ;
 
-      // An example trajectory to follow. All units in meters.
-  Trajectory exampleTrajectory =
-      TrajectoryGenerator.generateTrajectory(
-          // Start at the origin facing the +X direction
-          new Pose2d(0, 0, new Rotation2d(0)),
-          // Pass through these two interior waypoints, making an 's' curve path
-          List.of(new Translation2d(1, 1), new Translation2d(2, -1)),
-          // End 3 meters straight ahead of where we started, facing forward
-          new Pose2d(3, 0, new Rotation2d(0)),
-          // Pass config
-          config);
+  //     // An example trajectory to follow. All units in meters.
+  // Trajectory exampleTrajectory =
+  //     TrajectoryGenerator.generateTrajectory(
+  //         // Start at the origin facing the +X direction
+  //         new Pose2d(0, 0, new Rotation2d(0)),
+  //         // Pass through these two interior waypoints, making an 's' curve path
+  //         List.of(new Translation2d(1, 1), new Translation2d(2, -1)),
+  //         // End 3 meters straight ahead of where we started, facing forward
+  //         new Pose2d(3, 0, new Rotation2d(0)),
+  //         // Pass config
+  //         config);
           
   // Reset odometry to the initial pose of the trajectory, run path following
   // command, then stop at the end.
@@ -257,7 +241,7 @@ private final SysIdRoutine sysIdRoutine =
   public void drive(ChassisSpeeds chassisSpeeds) { 
     // done: convert meters per second to percentage (-1 to 1) or voltage
     SmartDashboard.putString("status1", "driving"); //NO RETURN
-    DifferentialDriveWheelSpeeds speeds = m_kinematics.toWheelSpeeds(chassisSpeeds);
+    DifferentialDriveWheelSpeeds speeds = kinematics.toWheelSpeeds(chassisSpeeds);
     double left = speeds.leftMetersPerSecond  / DrivetrainConstants.maxSpeed;
     double right = speeds.rightMetersPerSecond / DrivetrainConstants.maxSpeed;
     m_drivetrain.tankDrive((Math.abs(left) <= 1) ? left : 0, (Math.abs(right) <= 1) ? right : 0);
@@ -276,22 +260,21 @@ private final SysIdRoutine sysIdRoutine =
 public ChassisSpeeds getRobotRelativeSpeeds() { 
   SmartDashboard.putString("status3", "got robot relative speeds"); // NOT WORKING
   DifferentialDriveWheelSpeeds wheelSpeeds = new DifferentialDriveWheelSpeeds(
-    leftFrontEncoder.getVelocity() / 60, - rightFrontEncoder.getVelocity() / 60);
-    m_kinematics = new DifferentialDriveKinematics(Units.inchesToMeters(MechanicalConstants.trackWidth));
-    return m_kinematics.toChassisSpeeds(wheelSpeeds);
+    leftFrontEncoder.getVelocity(), - rightFrontEncoder.getVelocity());
+    kinematics = new DifferentialDriveKinematics(Units.inchesToMeters(MechanicalConstants.trackWidth));
+    return kinematics.toChassisSpeeds(wheelSpeeds);
   }
   
   public DifferentialDriveWheelSpeeds getCurrentSpeeds() {
-    return new DifferentialDriveWheelSpeeds(leftFrontEncoder.getVelocity() / 60,
-     - rightFrontEncoder.getVelocity() / 60);
+    return new DifferentialDriveWheelSpeeds(leftFrontEncoder.getVelocity(),
+     - rightFrontEncoder.getVelocity());
     }
     
     public void resetOdometry(Pose2d pose){
     SmartDashboard.putString("status4", "reset odometry"); // IS WORKING
     resetEncoders();
     odometry.resetPosition(Rotation2d.fromDegrees(gyro.getAngle()), 
-      leftFrontEncoder.getPosition(), 
-      -rightFrontEncoder.getPosition(), pose);
+      leftFrontEncoder.getPosition(), -rightFrontEncoder.getPosition(), pose);
   }
 
   @Override
