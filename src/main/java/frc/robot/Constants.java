@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.util.Units;
 
 /**
@@ -41,6 +42,9 @@ public final class Constants {
 
     public static final double kRamseteB = 2;
     public static final double kRamseteZeta = 0.7;
+
+    public static final DifferentialDriveKinematics kinematics = 
+      new DifferentialDriveKinematics(Units.inchesToMeters(MechanicalConstants.trackWidth));
   }
   
   public static class LauncherConstants {

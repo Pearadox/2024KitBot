@@ -11,15 +11,12 @@ import frc.robot.commands.Autos.ShootSpinCross;
 import frc.robot.commands.Paths.AutoDriveDistance;
 import frc.robot.commands.Paths.AutoDriveTime;
 import frc.robot.subsystems.*;
-
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -36,11 +33,7 @@ public class RobotContainer {
   private final Climber climber = new Climber();
   private final RollerClaw rollerClaw = new RollerClaw();
 
-
   private final SendableChooser<Boolean> chooserChooser = new SendableChooser<Boolean>();
-
-  //private final SendableChooser<SendableChooser<Command>> chooserChooser = new SendableChooser<SendableChooser<Command>>();
-
   private final SendableChooser<Command> manualChooser = new SendableChooser<Command>();  
   private final SendableChooser<Command> pathPlannerChooser;
   //private final SendableChooser<Boolean> controllerChoose = new SendableChooser<Boolean>();
@@ -48,9 +41,7 @@ public class RobotContainer {
   private final CommandXboxController driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
   private final CommandXboxController operatorController =
-      new CommandXboxController(OperatorConstants.kOperatorControllerPort);  
-
-  
+      new CommandXboxController(OperatorConstants.kOperatorControllerPort);    
   
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {  
@@ -172,7 +163,60 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
+    // Create a voltage constraint to ensure we don't accelerate too fast
+    // var autoVoltageConstraint =
+    //     new DifferentialDriveVoltageConstraint(
+    //         new SimpleMotorFeedforward(
+    //             DrivetrainConstants.kS,
+    //             DrivetrainConstants.kV,
+    //             DrivetrainConstants.kA),
+    //         DrivetrainConstants.kinematics,
+    //         10);
+
+    // Create config for trajectory
+    // TrajectoryConfig config =
+    //     new TrajectoryConfig(
+    //             DrivetrainConstants.maxSpeed,
+    //             DrivetrainConstants.kA)
+    //         // Add kinematics to ensure max speed is actually obeyed
+    //         .setKinematics(DrivetrainConstants.kinematics)
+    //         // Apply the voltage constraint
+    //         .addConstraint(autoVoltageConstraint);
+
+    // // An example trajectory to follow. All units in meters.
+    // Trajectory exampleTrajectory =
+    //     TrajectoryGenerator.generateTrajectory(
+    //         // Start at the origin facing the +X direction
+    //         new Pose2d(0, 0, new Rotation2d(0)),
+    //         // Pass through these two interior waypoints, making an 's' curve path
+    //         List.of(new Translation2d(1, 1), new Translation2d(2, -1)),
+    //         // End 3 meters straight ahead of where we started, facing forward
+    //         new Pose2d(3, 0, new Rotation2d(0)),
+    //         // Pass config
+    //         config);
+
+    // RamseteCommand ramseteCommand =
+    //     new RamseteCommand(
+    //         exampleTrajectory,
+    //         drivetrain::getPose,
+    //         new RamseteController(DrivetrainConstants.kRamseteB, DrivetrainConstants.kRamseteZeta),
+    //         new SimpleMotorFeedforward(
+    //             DrivetrainConstants.kS,
+    //             DrivetrainConstants.kV,
+    //             DrivetrainConstants.kA),
+    //         DrivetrainConstants.kinematics,
+    //         drivetrain::getWheelSpeeds,
+    //         new PIDController(DrivetrainConstants.kP, 0, 0),
+    //         new PIDController(DrivetrainConstants.kP, 0, 0),
+    //         // RamseteCommand passes volts to the callback
+    //         drivetrain::tankDriveVolts,
+    //         drivetrain);
+
+    // // Reset odometry to the initial pose of the trajectory, run path following
+    // // command, then stop at the end.
+    // return Commands.runOnce(() -> drivetrain.resetOdometry(exampleTrajectory.getInitialPose()))
+    //     .andThen(ramseteCommand)
+    //     .andThen(Commands.runOnce(() -> drivetrain.driveVolts(0, 0)));
 
     // returns either manualChooser or pathPlannerChooser depending on the value of the chooserChooser
     return chooserChooser.getSelected() ? manualChooser.getSelected() : pathPlannerChooser.getSelected();

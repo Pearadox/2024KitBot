@@ -17,17 +17,14 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import frc.lib.drivers.PearadoxSparkMax;
 import frc.robot.Constants.DrivetrainConstants;
-import frc.robot.Constants.MechanicalConstants;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SerialPort.Port;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -53,7 +50,6 @@ public class Drivetrain extends SubsystemBase {
     MotorType.kBrushless, PearadoxSparkMax.IdleMode.kBrake, DrivetrainConstants.limit, false, rightFront, 0);
   
   private DifferentialDriveOdometry odometry;
-  private DifferentialDriveKinematics kinematics;
   private AHRS gyro = new AHRS(Port.kMXP);
 
   private final RelativeEncoder leftFrontEncoder = leftFront.getEncoder();
@@ -106,7 +102,7 @@ public class Drivetrain extends SubsystemBase {
               // Boolean supplier that controls when the path will be mirrored for the red alliance
               // This will flip the path being followed to the red side of the field.
               // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-
+              System.out.println("called replanning config method");
               var alliance = DriverStation.getAlliance();
               if (alliance.isPresent()) { // is working
                 return alliance.get() == DriverStation.Alliance.Red;
@@ -156,83 +152,20 @@ private final SysIdRoutine sysIdRoutine =
         // WPILog with this subsystem's name ("drive")
         this));
 
-/**
-   * Returns a command that will execute a quasistatic test in the given direction.
-   *
-   * @param direction The direction (forward or reverse) to run the test in
-   */
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
     return sysIdRoutine.quasistatic(direction);
   }
 
-  /**
-   * Returns a command that will execute a dynamic test in the given direction.
-   *
-   * @param direction The direction (forward or reverse) to run the test in
-   */
   public Command sysIdDynamic(SysIdRoutine.Direction direction) {
     return sysIdRoutine.dynamic(direction);
   }
 
   public void driveVolts(double leftVolts, double rightVolts) {
+    System.out.println("called drive volts");
     leftFront.setVoltage(leftVolts);
     rightFront.setVoltage(rightVolts);
     m_drivetrain.feed(); // motor safety thing
   }
-
-  // var autoVoltageConstraint =
-  //   new DifferentialDriveVoltageConstraint(
-  //     new SimpleMotorFeedforward(
-  //       DrivetrainConstants.kS,
-  //       DrivetrainConstants.kV,
-  //       DrivetrainConstants.kA),
-  //     kinematics,
-  //     10);
-
-  // Create config for trajectory
-  // TrajectoryConfig config =
-  //     new TrajectoryConfig(
-  //             DrivetrainConstants.maxSpeed,
-  //             DrivetrainConstants.kA)
-  //         // Add kinematics to ensure max speed is actually obeyed
-  //         .setKinematics(m_kinematics)
-  //         // Apply the voltage constraint
-  //         //.addConstraint(autoVoltageConstraint)
-  //         ;
-
-  //     // An example trajectory to follow. All units in meters.
-  // Trajectory exampleTrajectory =
-  //     TrajectoryGenerator.generateTrajectory(
-  //         // Start at the origin facing the +X direction
-  //         new Pose2d(0, 0, new Rotation2d(0)),
-  //         // Pass through these two interior waypoints, making an 's' curve path
-  //         List.of(new Translation2d(1, 1), new Translation2d(2, -1)),
-  //         // End 3 meters straight ahead of where we started, facing forward
-  //         new Pose2d(3, 0, new Rotation2d(0)),
-  //         // Pass config
-  //         config);
-          
-  // Reset odometry to the initial pose of the trajectory, run path following
-  // command, then stop at the end.
-  // return Commands.runOnce(() -> m_robotDrive.resetOdometry(exampleTrajectory.getInitialPose()))
-
-// RamseteCommand ramseteCommand =
-//   new RamseteCommand(
-//       exampleTrajectory,
-//       m_drivetrain::getPose,
-//       new RamseteController(DrivetrainConstants.kRamseteB, DrivetrainConstants.kRamseteZeta),
-//       new SimpleMotorFeedforward(
-//           DrivetrainConstants.kS,
-//           DrivetrainConstants.kV,
-//           DrivetrainConstants.kA),
-//       kinematics,
-//       m_drivetrain::getWheelSpeeds,
-//       new PIDController(DrivetrainConstants.maxSpeed, 0, 0),
-//       new PIDController(DrivetrainConstants.maxSpeed, 0, 0),
-//       // RamseteCommand passes volts to the callback
-//       m_drivetrain::driveVolts, 
-//       m_drivetrain
-//       );
   
   public void arcadeDrive(double throttle, double twist) {
     m_drivetrain.arcadeDrive(throttle, twist);
@@ -240,8 +173,9 @@ private final SysIdRoutine sysIdRoutine =
 
   public void drive(ChassisSpeeds chassisSpeeds) { 
     // done: convert meters per second to percentage (-1 to 1) or voltage
+    System.out.println("called drive method");
     SmartDashboard.putString("status1", "driving"); //NO RETURN
-    DifferentialDriveWheelSpeeds speeds = kinematics.toWheelSpeeds(chassisSpeeds);
+    DifferentialDriveWheelSpeeds speeds = DrivetrainConstants.kinematics.toWheelSpeeds(chassisSpeeds);
     double left = speeds.leftMetersPerSecond  / DrivetrainConstants.maxSpeed;
     double right = speeds.rightMetersPerSecond / DrivetrainConstants.maxSpeed;
     m_drivetrain.tankDrive((Math.abs(left) <= 1) ? left : 0, (Math.abs(right) <= 1) ? right : 0);
@@ -253,24 +187,27 @@ private final SysIdRoutine sysIdRoutine =
   }
 
   public Pose2d getPose(){ 
+    System.out.println("called get pose method");
     SmartDashboard.putString("status2", "got pose"); // NOT WORKING
     return odometry.getPoseMeters();
   }
 
 public ChassisSpeeds getRobotRelativeSpeeds() { 
+  System.out.println("called get robot relative speeds method");
   SmartDashboard.putString("status3", "got robot relative speeds"); // NOT WORKING
   DifferentialDriveWheelSpeeds wheelSpeeds = new DifferentialDriveWheelSpeeds(
     leftFrontEncoder.getVelocity(), - rightFrontEncoder.getVelocity());
-    kinematics = new DifferentialDriveKinematics(Units.inchesToMeters(MechanicalConstants.trackWidth));
-    return kinematics.toChassisSpeeds(wheelSpeeds);
+    return DrivetrainConstants.kinematics.toChassisSpeeds(wheelSpeeds);
   }
   
   public DifferentialDriveWheelSpeeds getCurrentSpeeds() {
+    System.out.println("called get current speeds methods");
     return new DifferentialDriveWheelSpeeds(leftFrontEncoder.getVelocity(),
      - rightFrontEncoder.getVelocity());
     }
     
     public void resetOdometry(Pose2d pose){
+    System.out.println("called reset odometry method");
     SmartDashboard.putString("status4", "reset odometry"); // IS WORKING
     resetEncoders();
     odometry.resetPosition(Rotation2d.fromDegrees(gyro.getAngle()), 
@@ -286,11 +223,17 @@ public ChassisSpeeds getRobotRelativeSpeeds() {
     SmartDashboard.putNumber("Right Back", rightBack.getOutputCurrent());
 
     //double sensorPosition = Encoder.get() * DrivetrainConstants.encoderConversionFactor;
+    odometry.update(
+        gyro.getRotation2d(), leftFrontEncoder.getPosition(), rightFrontEncoder.getPosition());
   }
 
   public double getDistance() {
     return (leftFrontEncoder.getPosition() + rightFrontEncoder.getPosition() + 
       leftBackEncoder.getPosition() + rightBackEncoder.getPosition()) / 4.0;
+  }
+
+  public double getHeading() {
+    return gyro.getRotation2d().getDegrees();
   }
 
   public void resetEncoders() {
