@@ -36,6 +36,7 @@ public class Drivetrain extends SubsystemBase {
     MotorType.kBrushless, PearadoxSparkMax.IdleMode.kBrake, DrivetrainConstants.limit, false, rightFront, 0);
   
   private DifferentialDriveOdometry odometry;
+  private Pose2d pose2d;
   private AHRS gyro = new AHRS(Port.kMXP);
 
   private final RelativeEncoder leftFrontEncoder = leftFront.getEncoder();
@@ -66,7 +67,7 @@ public class Drivetrain extends SubsystemBase {
     leftBackEncoder.setVelocityConversionFactor(DrivetrainConstants.encoderConversionFactor / 60.0);
     rightBackEncoder.setVelocityConversionFactor(DrivetrainConstants.encoderConversionFactor / 60.0);
 
-    odometry = new DifferentialDriveOdometry(gyro.getRotation2d(), 
+    odometry = new DifferentialDriveOdometry(new Rotation2d(-gyro.getAngle()), 
       0.0, 0.0, 
       new Pose2d(0.0, 0.0, new Rotation2d(0.0)));
 
@@ -106,14 +107,17 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void driveVolts(double leftVolts, double rightVolts) {
-    leftFront.setVoltage(leftVolts);
-    rightFront.setVoltage(rightVolts);
+    leftFront.setVoltage(-leftVolts);
+    rightFront.setVoltage(-rightVolts);
+    leftBack.setVoltage(-leftVolts);
+    rightBack.setVoltage(-rightVolts);
     m_drivetrain.feed(); // motor safety thing
   }
 
   // for PathPlanner
   public Pose2d getPose() {
-    return odometry.getPoseMeters();
+    return pose2d;
+    //return odometry.getPoseMeters();
   }
 
   // for PathPlanner
@@ -125,8 +129,8 @@ public class Drivetrain extends SubsystemBase {
     
   // for PathPlanner
   public DifferentialDriveWheelSpeeds getCurrentSpeeds() {
-    return new DifferentialDriveWheelSpeeds(leftFrontEncoder.getVelocity(),
-      rightFrontEncoder.getVelocity());
+    return new DifferentialDriveWheelSpeeds(leftFrontEncoder.getVelocity() / 60,
+      rightFrontEncoder.getVelocity() / 60);
   }
     
   // for PathPlanner
@@ -153,9 +157,6 @@ public class Drivetrain extends SubsystemBase {
     rightBackEncoder.setPosition(0);
   }
   
-  public double getHeading() {
-    return gyro.getRotation2d().getDegrees();
-  }
 
   public void resetGyro() {
     gyro.reset();
@@ -163,6 +164,8 @@ public class Drivetrain extends SubsystemBase {
 
   @Override
   public void periodic() {
+    pose2d = odometry.update(
+        new Rotation2d(-gyro.getAngle()), leftFrontEncoder.getPosition(), rightFrontEncoder.getPosition());
     // This method will be called once per scheduler run
     // SmartDashboard.putNumber("Left Front", leftFront.getOutputCurrent());
     // SmartDashboard.putNumber("Right Front", rightFront.getOutputCurrent());
@@ -172,12 +175,11 @@ public class Drivetrain extends SubsystemBase {
     SmartDashboard.putNumber("pose x", getPose().getX());
     SmartDashboard.putNumber("pose y", getPose().getY());
     SmartDashboard.putNumber("pose theta", getPose().getRotation().getDegrees());
+    SmartDashboard.putNumber("angle", gyro.getAngle());
 
     System.out.println(getPose().getX() + ", " + 
       getPose().getY() + ", " + getPose().getRotation().getDegrees());
 
     //double sensorPosition = Encoder.get() * DrivetrainConstants.encoderConversionFactor;
-    odometry.update(
-        gyro.getRotation2d(), leftFrontEncoder.getPosition(), rightFrontEncoder.getPosition());
   }
 }
