@@ -27,7 +27,7 @@ public final class Constants {
     public static final int leftBackID = 11; 
     public static final int rightBackID = 12;
     
-    public static final double deadBan = 0.2;
+    public static final double deadBan = 0.15;
 
     public static final int limit = 45;
 

@@ -21,7 +21,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.MotorSafety;
 import edu.wpi.first.wpilibj.SerialPort.Port;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -49,8 +48,8 @@ public class Drivetrain extends SubsystemBase {
   private final PIDController leftPIDController = new PIDController(0.01, 0, 0);
   private final PIDController rightPIDController = new PIDController(0.01, 0, 0);
 
-  private final SlewRateLimiter speedLimiter = new SlewRateLimiter(DrivetrainConstants.maxSpeed);
-  private final SlewRateLimiter rotLimiter = new SlewRateLimiter(DrivetrainConstants.maxAngularSpeed);
+  // private final SlewRateLimiter speedLimiter = new SlewRateLimiter(DrivetrainConstants.maxSpeed);
+  // private final SlewRateLimiter rotLimiter = new SlewRateLimiter(DrivetrainConstants.maxAngularSpeed / 5.0);
 
   private final RelativeEncoder leftFrontEncoder = leftFront.getEncoder();
   private final RelativeEncoder rightFrontEncoder = rightFront.getEncoder();
@@ -81,7 +80,7 @@ public class Drivetrain extends SubsystemBase {
     leftBackEncoder.setVelocityConversionFactor(DrivetrainConstants.encoderConversionFactor / 60.0);
     rightBackEncoder.setVelocityConversionFactor(DrivetrainConstants.encoderConversionFactor / 60.0);
 
-    odometry = new DifferentialDriveOdometry(new Rotation2d(-gyro.getAngle()), 
+    odometry = new DifferentialDriveOdometry(new Rotation2d(-gyro.getAngle()),
       0.0, 0.0, 
       new Pose2d(0.0, 0.0, new Rotation2d(0.0)));
 
@@ -107,9 +106,13 @@ public class Drivetrain extends SubsystemBase {
 
   public void arcadeDrive(double throttle, double twist) {
     // m_drivetrain.arcadeDrive(throttle, twist);  
-    throttle = speedLimiter.calculate(throttle) * DrivetrainConstants.maxSpeed;
-    twist = rotLimiter.calculate(twist) * DrivetrainConstants.maxAngularSpeed;  
+    // throttle = speedLimiter.calculate(throttle) * DrivetrainConstants.maxSpeed;
+    // twist = rotLimiter.calculate(twist) * DrivetrainConstants.maxAngularSpeed;  
+    throttle *= DrivetrainConstants.maxSpeed;
+    twist *= DrivetrainConstants.maxAngularSpeed;  
     var wheelSpeeds = new ChassisSpeeds(throttle, 0.0, twist);
+    SmartDashboard.putNumber("throttle", throttle);
+    SmartDashboard.putNumber("twist", twist);
     
     chassisSpeedDrive(wheelSpeeds);
   }
@@ -128,12 +131,14 @@ public class Drivetrain extends SubsystemBase {
     // double left = speeds.leftMetersPerSecond  / DrivetrainConstants.maxSpeed;
     // double right = speeds.rightMetersPerSecond / DrivetrainConstants.maxSpeed;
     driveVolts(leftOutput + leftFeedforward, rightOutput + rightFeedforward);
-    System.out.println("left: " + (leftOutput + leftFeedforward) + "right: " + (rightOutput + rightFeedforward));
+    System.out.println("left: " + (leftOutput + leftFeedforward) + " right: " + (rightOutput + rightFeedforward));
   }
 
   public void driveVolts(double leftVolts, double rightVolts) {
     assert leftVolts < leftFront.getBusVoltage();
     assert rightVolts < rightFront.getBusVoltage();
+    SmartDashboard.putNumber("leftVolts", leftVolts);
+    SmartDashboard.putNumber("rightVolts", rightVolts);
     leftFront.setVoltage(leftVolts);
     rightFront.setVoltage(rightVolts);
     // leftBack.setVoltage(leftVolts);
@@ -161,7 +166,7 @@ public class Drivetrain extends SubsystemBase {
   // for PathPlanner
   public void resetOdometry(Pose2d pose){
     resetEncoders();
-    odometry.resetPosition(Rotation2d.fromDegrees(gyro.getAngle()), 
+    odometry.resetPosition(Rotation2d.fromDegrees(-gyro.getAngle()), 
       leftFrontEncoder.getPosition(), rightFrontEncoder.getPosition(), pose);
     drivetrain.feed();
   }
@@ -192,15 +197,19 @@ public class Drivetrain extends SubsystemBase {
         new Rotation2d(-gyro.getAngle()), leftFrontEncoder.getPosition(), rightFrontEncoder.getPosition());
 
     // This method will be called once per scheduler run
-    // SmartDashboard.putNumber("Left Front", leftFront.getOutputCurrent());
-    // SmartDashboard.putNumber("Right Front", rightFront.getOutputCurrent());
-    // SmartDashboard.putNumber("Left Back", leftBack.getOutputCurrent());
-    // SmartDashboard.putNumber("Right Back", rightBack.getOutputCurrent());
+    SmartDashboard.putNumber("Left Front", leftFront.getOutputCurrent());
+    SmartDashboard.putNumber("Left Back", leftBack.getOutputCurrent());
+    SmartDashboard.putNumber("Right Front", rightFront.getOutputCurrent());
+    SmartDashboard.putNumber("Right Back", rightBack.getOutputCurrent());
+    SmartDashboard.putNumber("left encoder", leftFrontEncoder.getPosition());
+    SmartDashboard.putNumber("right encoder", rightFrontEncoder.getPosition());
 
     SmartDashboard.putNumber("pose x", getPose().getX());
     SmartDashboard.putNumber("pose y", getPose().getY());
     SmartDashboard.putNumber("pose theta", getPose().getRotation().getDegrees());
     SmartDashboard.putNumber("angle", gyro.getAngle());
+    SmartDashboard.putNumber("is gyro working?", gyro.getVelocityX());
+    SmartDashboard.putNumber("yaw", gyro.getYaw());
 
     System.out.println(getPose().getX() + ", " + 
       getPose().getY() + ", " + getPose().getRotation().getDegrees());
