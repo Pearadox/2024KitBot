@@ -27,12 +27,13 @@ public final class Constants {
     public static final int leftBackID = 11; 
     public static final int rightBackID = 12;
     
-    public static final double deadBan = 0.1;
+    public static final double deadBan = 0.2;
 
     public static final int limit = 45;
 
     public static final double encoderConversionFactor = Units.inchesToMeters(6*Math.PI) / 10.71;
     public static final double maxSpeed = 5 / 1.54; // tested max speed in m/s
+    public static final double maxAngularSpeed = 2 * Math.PI; // one rotation per second
 
     public static final double kS = 0.2136; // volts
     public static final double kV = 5.05; // volts * seconds / meters
@@ -45,6 +46,8 @@ public final class Constants {
 
     public static final DifferentialDriveKinematics kinematics = 
       new DifferentialDriveKinematics(Units.inchesToMeters(MechanicalConstants.trackWidth));
+
+    public static final double slewRateLimit = 3; // makes joystick more gentle, 1/3 sec from 0 to 1
   }
   
   public static class LauncherConstants {

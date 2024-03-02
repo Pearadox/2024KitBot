@@ -12,12 +12,16 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import frc.lib.drivers.PearadoxSparkMax;
 import frc.robot.Constants.DrivetrainConstants;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.MotorSafety;
 import edu.wpi.first.wpilibj.SerialPort.Port;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -39,14 +43,22 @@ public class Drivetrain extends SubsystemBase {
   private Pose2d pose2d;
   private AHRS gyro = new AHRS(Port.kMXP);
 
+  private final SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(
+    DrivetrainConstants.kS, DrivetrainConstants.kV, DrivetrainConstants.kA);
+  
+  private final PIDController leftPIDController = new PIDController(0.01, 0, 0);
+  private final PIDController rightPIDController = new PIDController(0.01, 0, 0);
+
+  private final SlewRateLimiter speedLimiter = new SlewRateLimiter(DrivetrainConstants.maxSpeed);
+  private final SlewRateLimiter rotLimiter = new SlewRateLimiter(DrivetrainConstants.maxAngularSpeed);
+
   private final RelativeEncoder leftFrontEncoder = leftFront.getEncoder();
   private final RelativeEncoder rightFrontEncoder = rightFront.getEncoder();
   private final RelativeEncoder leftBackEncoder = leftBack.getEncoder();
   private final RelativeEncoder rightBackEncoder = rightBack.getEncoder();
 
   /** Creates a new Drivetrain. */
-  DifferentialDrive m_drivetrain;
-
+  DifferentialDrive drivetrain;
   // TODO: Integrate foundational code necessary for trajectory/path following
   // Helpful references:
   // https://docs.wpilib.org/en/stable/docs/software/pathplanning/trajectory-tutorial/index.html <--
@@ -54,7 +66,9 @@ public class Drivetrain extends SubsystemBase {
   // https://github.com/Pearadox/2023Everybot/blob/master/src/main/java/frc/robot/Constants.java
 
   public Drivetrain() {
-    m_drivetrain = new DifferentialDrive(leftFront, rightFront);
+    drivetrain = new DifferentialDrive(leftFront, rightFront);
+
+    drivetrain.setSafetyEnabled(false); // TODO: test??
     
     // 6 inch wheel, 10.71:1 gear ratio
     leftFrontEncoder.setPositionConversionFactor(DrivetrainConstants.encoderConversionFactor);
@@ -71,9 +85,7 @@ public class Drivetrain extends SubsystemBase {
       0.0, 0.0, 
       new Pose2d(0.0, 0.0, new Rotation2d(0.0)));
 
-    // docs: https://pathplanner.dev/pplib-build-an-auto.html#create-a-sendablechooser-with-all-autos-in-project
-    // TODO: fix below; code crashes when path planner auto is selected & some of the commands are not even run
-    
+    // docs: https://pathplanner.dev/pplib-build-an-auto.html#create-a-sendablechooser-with-all-autos-in-project    
     AutoBuilder.configureRamsete(
       this::getPose, // Robot pose supplier
       this::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
@@ -94,40 +106,53 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void arcadeDrive(double throttle, double twist) {
-    m_drivetrain.arcadeDrive(throttle, twist);
+    // m_drivetrain.arcadeDrive(throttle, twist);  
+    throttle = speedLimiter.calculate(throttle) * DrivetrainConstants.maxSpeed;
+    twist = rotLimiter.calculate(twist) * DrivetrainConstants.maxAngularSpeed;  
+    var wheelSpeeds = new ChassisSpeeds(throttle, 0.0, twist);
+    
+    chassisSpeedDrive(wheelSpeeds);
   }
 
-  // for PathPlanner
   public void chassisSpeedDrive(ChassisSpeeds chassisSpeeds) { 
     // done: convert meters per second to percentage (-1 to 1) or voltage
     DifferentialDriveWheelSpeeds speeds = DrivetrainConstants.kinematics.toWheelSpeeds(chassisSpeeds);
-    double left = speeds.leftMetersPerSecond  / DrivetrainConstants.maxSpeed;
-    double right = speeds.rightMetersPerSecond / DrivetrainConstants.maxSpeed;
-    m_drivetrain.tankDrive(left, right);
+    final double leftFeedforward = feedforward.calculate(speeds.leftMetersPerSecond);
+    final double rightFeedforward = feedforward.calculate(speeds.rightMetersPerSecond);
+
+    final double leftOutput = 
+      leftPIDController.calculate(leftFrontEncoder.getVelocity(), speeds.leftMetersPerSecond);
+    final double rightOutput = 
+      rightPIDController.calculate(rightFrontEncoder.getVelocity(), speeds.rightMetersPerSecond);
+    
+    // double left = speeds.leftMetersPerSecond  / DrivetrainConstants.maxSpeed;
+    // double right = speeds.rightMetersPerSecond / DrivetrainConstants.maxSpeed;
+    driveVolts(leftOutput + leftFeedforward, rightOutput + rightFeedforward);
+    System.out.println("left: " + (leftOutput + leftFeedforward) + "right: " + (rightOutput + rightFeedforward));
   }
 
   public void driveVolts(double leftVolts, double rightVolts) {
-    leftFront.setVoltage(-leftVolts);
-    rightFront.setVoltage(-rightVolts);
-    leftBack.setVoltage(-leftVolts);
-    rightBack.setVoltage(-rightVolts);
-    m_drivetrain.feed(); // motor safety thing
+    assert leftVolts < leftFront.getBusVoltage();
+    assert rightVolts < rightFront.getBusVoltage();
+    leftFront.setVoltage(leftVolts);
+    rightFront.setVoltage(rightVolts);
+    // leftBack.setVoltage(leftVolts);
+    // rightBack.setVoltage(rightVolts);
+    drivetrain.feed(); // motor safety thing
   }
 
-  // for PathPlanner
   public Pose2d getPose() {
+    drivetrain.feed();
     return pose2d;
     //return odometry.getPoseMeters();
   }
 
-  // for PathPlanner
   public ChassisSpeeds getRobotRelativeSpeeds() { 
     DifferentialDriveWheelSpeeds wheelSpeeds = new DifferentialDriveWheelSpeeds(
       leftFrontEncoder.getVelocity(), rightFrontEncoder.getVelocity());
-      return DrivetrainConstants.kinematics.toChassisSpeeds(wheelSpeeds);
+    return DrivetrainConstants.kinematics.toChassisSpeeds(wheelSpeeds);
   }
     
-  // for PathPlanner
   public DifferentialDriveWheelSpeeds getCurrentSpeeds() {
     return new DifferentialDriveWheelSpeeds(leftFrontEncoder.getVelocity() / 60,
       rightFrontEncoder.getVelocity() / 60);
@@ -138,7 +163,7 @@ public class Drivetrain extends SubsystemBase {
     resetEncoders();
     odometry.resetPosition(Rotation2d.fromDegrees(gyro.getAngle()), 
       leftFrontEncoder.getPosition(), rightFrontEncoder.getPosition(), pose);
-    m_drivetrain.feed();
+    drivetrain.feed();
   }
     
   public RelativeEncoder getEncoder() {
@@ -146,8 +171,8 @@ public class Drivetrain extends SubsystemBase {
   }
   
   public double getDistance() {
-  return (leftFrontEncoder.getPosition() + rightFrontEncoder.getPosition() + 
-    leftBackEncoder.getPosition() + rightBackEncoder.getPosition()) / 4.0;
+    return (leftFrontEncoder.getPosition() + rightFrontEncoder.getPosition() + 
+      leftBackEncoder.getPosition() + rightBackEncoder.getPosition()) / 4.0;
   }    
   
   public void resetEncoders() {
@@ -155,8 +180,7 @@ public class Drivetrain extends SubsystemBase {
     rightFrontEncoder.setPosition(0);
     leftBackEncoder.setPosition(0);
     rightBackEncoder.setPosition(0);
-  }
-  
+  }  
 
   public void resetGyro() {
     gyro.reset();
@@ -166,6 +190,7 @@ public class Drivetrain extends SubsystemBase {
   public void periodic() {
     pose2d = odometry.update(
         new Rotation2d(-gyro.getAngle()), leftFrontEncoder.getPosition(), rightFrontEncoder.getPosition());
+
     // This method will be called once per scheduler run
     // SmartDashboard.putNumber("Left Front", leftFront.getOutputCurrent());
     // SmartDashboard.putNumber("Right Front", rightFront.getOutputCurrent());

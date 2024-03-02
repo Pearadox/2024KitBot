@@ -12,12 +12,8 @@ import frc.robot.commands.Autos.ShootSpinCross;
 import frc.robot.commands.Paths.AutoDriveDistance;
 import frc.robot.commands.Paths.AutoDriveTime;
 import frc.robot.subsystems.*;
-import frc.robot.Constants.*;
-
 import java.util.List;
-
 import com.pathplanner.lib.auto.AutoBuilder;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.RamseteController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -26,7 +22,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -164,7 +159,8 @@ public class RobotContainer {
         new RamseteCommand(
             exampleTrajectory,
             drivetrain::getPose,
-            new RamseteController(DrivetrainConstants.kRamseteB, DrivetrainConstants.kRamseteZeta),
+            new RamseteController(DrivetrainConstants.kRamseteB, 
+                DrivetrainConstants.kRamseteZeta),
             new SimpleMotorFeedforward(
                 DrivetrainConstants.kS,
                 DrivetrainConstants.kV,
