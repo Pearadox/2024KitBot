@@ -14,7 +14,6 @@ import frc.robot.Constants.DrivetrainConstants;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -56,9 +55,12 @@ public class Drivetrain extends SubsystemBase {
   private final RelativeEncoder leftBackEncoder = leftBack.getEncoder();
   private final RelativeEncoder rightBackEncoder = rightBack.getEncoder();
 
+  // TODO: test if noticeable impact between driving with/without chassisSpeedDrive() in teleop
+  private boolean useChassisSpeedDrive = true;
+
   /** Creates a new Drivetrain. */
   DifferentialDrive drivetrain;
-  // TODO: Integrate foundational code necessary for trajectory/path following
+  // done?: Integrate foundational code necessary for trajectory/path following
   // Helpful references:
   // https://docs.wpilib.org/en/stable/docs/software/pathplanning/trajectory-tutorial/index.html <--
   // https://github.com/Pearadox/2023Everybot/blob/master/src/main/java/frc/robot/subsystems/DriveTrain.java
@@ -105,21 +107,27 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void arcadeDrive(double throttle, double twist) {
-    // m_drivetrain.arcadeDrive(throttle, twist);  
-    // throttle = speedLimiter.calculate(throttle) * DrivetrainConstants.maxSpeed;
-    // twist = rotLimiter.calculate(twist) * DrivetrainConstants.maxAngularSpeed;  
-    throttle *= DrivetrainConstants.maxSpeed;
-    twist *= DrivetrainConstants.maxAngularSpeed;  
-    var wheelSpeeds = new ChassisSpeeds(throttle, 0.0, twist);
     SmartDashboard.putNumber("throttle", throttle);
     SmartDashboard.putNumber("twist", twist);
-    
-    chassisSpeedDrive(wheelSpeeds);
+
+    if (useChassisSpeedDrive) {
+      // throttle = speedLimiter.calculate(throttle) * DrivetrainConstants.maxSpeed;
+      // twist = rotLimiter.calculate(twist) * DrivetrainConstants.maxAngularSpeed;
+      throttle *= DrivetrainConstants.maxSpeed;
+      twist *= DrivetrainConstants.maxAngularSpeed;
+  
+      // this creates new ChassisSpeeds object with vx (joystick axis * max speed (~3m/s)) 
+      // and vtheta (joystick axis * max angular speed (1 rot/s))
+      var wheelSpeeds = new ChassisSpeeds(throttle, 0.0, twist);
+      chassisSpeedDrive(wheelSpeeds);
+    } else {
+      drivetrain.arcadeDrive(throttle, twist); // square inputs to decrease sensitivity?
+    }
   }
 
   public void chassisSpeedDrive(ChassisSpeeds chassisSpeeds) { 
-    // done: convert meters per second to percentage (-1 to 1) or voltage
     DifferentialDriveWheelSpeeds speeds = DrivetrainConstants.kinematics.toWheelSpeeds(chassisSpeeds);
+
     final double leftFeedforward = feedforward.calculate(speeds.leftMetersPerSecond);
     final double rightFeedforward = feedforward.calculate(speeds.rightMetersPerSecond);
 
@@ -128,26 +136,21 @@ public class Drivetrain extends SubsystemBase {
     final double rightOutput = 
       rightPIDController.calculate(rightFrontEncoder.getVelocity(), speeds.rightMetersPerSecond);
     
-    // double left = speeds.leftMetersPerSecond  / DrivetrainConstants.maxSpeed;
-    // double right = speeds.rightMetersPerSecond / DrivetrainConstants.maxSpeed;
     driveVolts(leftOutput + leftFeedforward, rightOutput + rightFeedforward);
-    System.out.println("left: " + (leftOutput + leftFeedforward) + " right: " + (rightOutput + rightFeedforward));
   }
 
   public void driveVolts(double leftVolts, double rightVolts) {
-    assert leftVolts < leftFront.getBusVoltage();
-    assert rightVolts < rightFront.getBusVoltage();
+    assert Math.abs(leftVolts) < Math.abs(leftFront.getBusVoltage());
+    assert Math.abs(rightVolts) < Math.abs(rightFront.getBusVoltage());
     SmartDashboard.putNumber("leftVolts", leftVolts);
     SmartDashboard.putNumber("rightVolts", rightVolts);
     leftFront.setVoltage(leftVolts);
     rightFront.setVoltage(rightVolts);
-    // leftBack.setVoltage(leftVolts);
-    // rightBack.setVoltage(rightVolts);
     drivetrain.feed(); // motor safety thing
   }
 
   public Pose2d getPose() {
-    drivetrain.feed();
+    drivetrain.feed(); // has an error w/o this?
     return pose2d;
     //return odometry.getPoseMeters();
   }
@@ -163,7 +166,6 @@ public class Drivetrain extends SubsystemBase {
       rightFrontEncoder.getVelocity() / 60);
   }
     
-  // for PathPlanner
   public void resetOdometry(Pose2d pose){
     resetEncoders();
     odometry.resetPosition(Rotation2d.fromDegrees(-gyro.getAngle()), 
@@ -196,24 +198,25 @@ public class Drivetrain extends SubsystemBase {
     pose2d = odometry.update(
         new Rotation2d(-gyro.getAngle()), leftFrontEncoder.getPosition(), rightFrontEncoder.getPosition());
 
-    // This method will be called once per scheduler run
     SmartDashboard.putNumber("Left Front", leftFront.getOutputCurrent());
     SmartDashboard.putNumber("Left Back", leftBack.getOutputCurrent());
     SmartDashboard.putNumber("Right Front", rightFront.getOutputCurrent());
     SmartDashboard.putNumber("Right Back", rightBack.getOutputCurrent());
+
     SmartDashboard.putNumber("left encoder", leftFrontEncoder.getPosition());
     SmartDashboard.putNumber("right encoder", rightFrontEncoder.getPosition());
 
     SmartDashboard.putNumber("pose x", getPose().getX());
     SmartDashboard.putNumber("pose y", getPose().getY());
     SmartDashboard.putNumber("pose theta", getPose().getRotation().getDegrees());
-    SmartDashboard.putNumber("angle", gyro.getAngle());
-    SmartDashboard.putNumber("is gyro working?", gyro.getVelocityX());
-    SmartDashboard.putNumber("yaw", gyro.getYaw());
+
+    SmartDashboard.putNumber("gyro angle", gyro.getAngle());
+    SmartDashboard.putNumber("gyro vx", gyro.getVelocityX());
+    SmartDashboard.putNumber("gyro yaw", gyro.getYaw());
+
+    SmartDashboard.putBoolean("useChassisSpeedDrive", useChassisSpeedDrive);
 
     System.out.println(getPose().getX() + ", " + 
       getPose().getY() + ", " + getPose().getRotation().getDegrees());
-
-    //double sensorPosition = Encoder.get() * DrivetrainConstants.encoderConversionFactor;
   }
 }

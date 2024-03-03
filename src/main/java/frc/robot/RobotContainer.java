@@ -74,7 +74,7 @@ public class RobotContainer {
     
     pathPlannerChooser = AutoBuilder.buildAutoChooser("auto1");
     SmartDashboard.putData("path planner chooser", pathPlannerChooser);
-    }
+  }
 
   public void configureBindings() {
     // when operator holds right bumper, run PrepareLaunch for 1 sec, then run LaunchNote
